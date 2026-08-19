@@ -2,7 +2,7 @@
 
 Flutter-based AI orchestration CLI with DevSecOps, multi-agent monitoring, CI/CD pipelines, and native module generation.
 
-## Structure
+## Project Structure
 
 - `flutter_nexus_dev/` — Full Flutter application source (lib/, android/, ios/, pubspec.yaml, build scripts)
 - `build_output/` — Artifact mounting point for generated APK and IPA files
