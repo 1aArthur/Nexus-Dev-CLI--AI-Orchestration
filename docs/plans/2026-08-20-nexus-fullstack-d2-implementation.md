@@ -39,9 +39,17 @@
 - Create: `apps/mobile/pubspec.yaml`
 - Create: `apps/mobile/analysis_options.yaml`
 - Create: `apps/mobile/lib/main.dart`
+- Create: `apps/mobile/lib/app/nexus_app.dart`
 - Create: `apps/mobile/test/bootstrap_test.dart`
 - Create: `Cargo.toml`
+- Create: `Cargo.lock`
+- Create: `crates/nexus_core/Cargo.toml`
+- Create: `crates/nexus_core/src/lib.rs`
+- Create: `crates/nexus_gateway/Cargo.toml`
+- Create: `crates/nexus_gateway/src/main.rs`
 - Create: `services/orchestrator/mix.exs`
+- Create: `services/orchestrator/lib/nexus_orchestrator.ex`
+- Create: `services/orchestrator/test/nexus_orchestrator_test.exs`
 - Create: `.github/workflows/bootstrap.yml`
 - Modify: `README.md`
 
@@ -75,7 +83,7 @@ Expected: all available empty-workspace format and test checks pass without cred
 - [ ] **Step 6: Commit the passing deliverable**
 
 ```bash
-git add .gitignore .env.example .tool-versions Makefile README.md Cargo.toml docker-compose.yml melos.yaml apps/mobile services/orchestrator .github/workflows/bootstrap.yml
+git add .gitignore .env.example .tool-versions Makefile README.md Cargo.toml Cargo.lock docker-compose.yml melos.yaml apps/mobile crates/nexus_core crates/nexus_gateway services/orchestrator .github/workflows/bootstrap.yml
 git commit -m "build: bootstrap nexus full-stack workspace"
 ```
 

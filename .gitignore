@@ -1,0 +1,41 @@
+# Secrets and signing material
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*.cer
+*.key
+
+# Flutter and Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+coverage/
+apps/mobile/android/.gradle/
+apps/mobile/android/local.properties
+apps/mobile/ios/Flutter/ephemeral/
+apps/mobile/ios/Pods/
+apps/mobile/ios/.symlinks/
+
+# Rust
+target/
+
+# Elixir
+services/orchestrator/_build/
+services/orchestrator/deps/
+services/orchestrator/cover/
+
+# IDE and operating system
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Local workspace state
+.worktrees/
+.skillquiver/
