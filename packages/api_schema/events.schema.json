@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nexus.invalid/events.schema.json",
+  "title": "Nexus mission event",
+  "type": "object",
+  "required": [
+    "eventId",
+    "missionId",
+    "sequence",
+    "traceId",
+    "type",
+    "occurredAt",
+    "payload"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "missionId": { "type": "string", "format": "uuid" },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "traceId": { "type": "string", "minLength": 16, "maxLength": 64 },
+    "type": {
+      "type": "string",
+      "enum": [
+        "mission.created",
+        "mission.status_changed",
+        "agent.started",
+        "agent.completed",
+        "usage.recorded",
+        "terminal.output"
+      ]
+    },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "payload": { "type": "object" }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "type": { "const": "mission.created" },
+        "payload": {
+          "type": "object",
+          "required": ["title", "ownerId"],
+          "properties": {
+            "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+            "ownerId": { "type": "string", "format": "uuid" }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "mission.status_changed" },
+        "payload": {
+          "type": "object",
+          "required": ["from", "to"],
+          "properties": {
+            "from": { "$ref": "#/$defs/missionStatus" },
+            "to": { "$ref": "#/$defs/missionStatus" },
+            "reasonCode": { "type": "string", "maxLength": 64 }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "agent.started" },
+        "payload": {
+          "type": "object",
+          "required": ["agentId", "stepId", "exactModelId"],
+          "properties": {
+            "agentId": { "type": "string", "format": "uuid" },
+            "stepId": { "type": "string", "format": "uuid" },
+            "exactModelId": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "agent.completed" },
+        "payload": {
+          "type": "object",
+          "required": ["agentId", "stepId", "outcome"],
+          "properties": {
+            "agentId": { "type": "string", "format": "uuid" },
+            "stepId": { "type": "string", "format": "uuid" },
+            "outcome": { "enum": ["succeeded", "failed", "cancelled"] }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "usage.recorded" },
+        "payload": {
+          "type": "object",
+          "required": ["usageRecordId", "costMicros", "provenance"],
+          "properties": {
+            "usageRecordId": { "type": "string", "format": "uuid" },
+            "costMicros": { "type": "integer", "minimum": 0 },
+            "provenance": {
+              "enum": ["provider_reported", "estimated", "adjusted"]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "terminal.output" },
+        "payload": {
+          "type": "object",
+          "required": ["executionId", "stream", "chunk", "chunkSequence"],
+          "properties": {
+            "executionId": { "type": "string", "format": "uuid" },
+            "stream": { "enum": ["stdout", "stderr", "system"] },
+            "chunk": { "type": "string", "maxLength": 65536 },
+            "chunkSequence": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "missionStatus": {
+      "enum": [
+        "draft",
+        "queued",
+        "running",
+        "awaiting_approval",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ]
+    }
+  },
+  "unevaluatedProperties": false
+}

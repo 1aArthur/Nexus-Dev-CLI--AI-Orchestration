@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nexus.invalid/execution-targets.schema.json",
+  "title": "Nexus execution target",
+  "type": "object",
+  "required": [
+    "id",
+    "displayName",
+    "kind",
+    "status",
+    "capabilities",
+    "approvalMode"
+  ],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "kind": {
+      "enum": ["device", "github_actions", "codespaces", "ssh_worker"]
+    },
+    "status": {
+      "enum": ["available", "unavailable", "requires_auth", "disabled"]
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "safe_native",
+          "read_repository",
+          "write_repository",
+          "network",
+          "terminal",
+          "long_running",
+          "secrets",
+          "gpu"
+        ]
+      }
+    },
+    "approvalMode": {
+      "enum": ["always_ask", "policy", "never_for_safe_native"]
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "maximumSeconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+        "maximumConcurrentRuns": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "maximumOutputBytes": { "type": "integer", "minimum": 1024 }
+      },
+      "additionalProperties": false
+    },
+    "labels": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9][a-z0-9._-]{0,62}$" },
+      "additionalProperties": { "type": "string", "maxLength": 120 }
+    }
+  },
+  "additionalProperties": false
+}
