@@ -7,7 +7,6 @@ part 'local_storage.g.dart';
 @riverpod
 Future<void> hiveInit(HiveInitRef ref) async {
   await Hive.initFlutter();
-  
   if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(SkillEntityAdapter());
   if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(McpToolEntityAdapter());
   if (!Hive.isAdapterRegistered(2)) Hive.registerAdapter(TerminalCommandEntityAdapter());
@@ -16,7 +15,6 @@ Future<void> hiveInit(HiveInitRef ref) async {
   if (!Hive.isAdapterRegistered(5)) Hive.registerAdapter(AgentDebateEntityAdapter());
   if (!Hive.isAdapterRegistered(6)) Hive.registerAdapter(SecurityAuditEntityAdapter());
   if (!Hive.isAdapterRegistered(7)) Hive.registerAdapter(PipelineRunEntityAdapter());
-  
   await Hive.openBox<SkillEntity>('skills');
   await Hive.openBox<McpToolEntity>('mcp_tools');
   await Hive.openBox<TerminalCommandEntity>('terminal_history');
