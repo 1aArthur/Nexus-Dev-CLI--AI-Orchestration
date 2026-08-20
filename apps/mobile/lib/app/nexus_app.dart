@@ -10,7 +10,6 @@ class NexusApp extends StatefulWidget {
 class _NexusAppState extends State<NexusApp> {
   late final RouterConfig<_NexusRoute> _routerConfig = RouterConfig<_NexusRoute>(
     routerDelegate: _NexusRouterDelegate(),
-    routeInformationParser: const _NexusRouteInformationParser(),
   );
 
   @override
@@ -35,23 +34,6 @@ class _NexusAppState extends State<NexusApp> {
 
 class _NexusRoute {
   const _NexusRoute();
-}
-
-class _NexusRouteInformationParser
-    extends RouteInformationParser<_NexusRoute> {
-  const _NexusRouteInformationParser();
-
-  @override
-  Future<_NexusRoute> parseRouteInformation(
-    RouteInformation routeInformation,
-  ) async {
-    return const _NexusRoute();
-  }
-
-  @override
-  RouteInformation restoreRouteInformation(_NexusRoute configuration) {
-    return RouteInformation(uri: Uri.parse('/'));
-  }
 }
 
 class _NexusRouterDelegate extends RouterDelegate<_NexusRoute>
