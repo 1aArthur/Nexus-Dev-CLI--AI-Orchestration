@@ -50,6 +50,7 @@
 - Create: `services/orchestrator/mix.exs`
 - Create: `services/orchestrator/.formatter.exs`
 - Create: `services/orchestrator/lib/nexus_orchestrator.ex`
+- Create: `services/orchestrator/test/test_helper.exs`
 - Create: `services/orchestrator/test/nexus_orchestrator_test.exs`
 - Create: `.github/workflows/bootstrap.yml`
 - Modify: `README.md`

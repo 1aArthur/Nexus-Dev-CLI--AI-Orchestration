@@ -8,9 +8,8 @@ class NexusApp extends StatefulWidget {
 }
 
 class _NexusAppState extends State<NexusApp> {
-  late final RouterConfig<_NexusRoute> _routerConfig = RouterConfig<_NexusRoute>(
-    routerDelegate: _NexusRouterDelegate(),
-  );
+  late final RouterConfig<_NexusRoute> _routerConfig =
+      RouterConfig<_NexusRoute>(routerDelegate: _NexusRouterDelegate());
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +51,7 @@ class _NexusRouterDelegate extends RouterDelegate<_NexusRoute>
         MaterialPage<void>(
           child: Scaffold(
             body: Center(
-              child: Semantics(
-                header: true,
-                child: const Text('NEXUS'),
-              ),
+              child: Semantics(header: true, child: const Text('NEXUS')),
             ),
           ),
         ),
