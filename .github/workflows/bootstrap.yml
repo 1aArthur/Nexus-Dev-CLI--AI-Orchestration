@@ -36,8 +36,8 @@ jobs:
           git diff --exit-code -- lib test
       - name: Analyze
         run: flutter analyze
-      - name: Run bootstrap contract
-        run: flutter test test/bootstrap_test.dart
+      - name: Run Flutter contracts
+        run: flutter test
 
   rust-contract:
     runs-on: ubuntu-latest

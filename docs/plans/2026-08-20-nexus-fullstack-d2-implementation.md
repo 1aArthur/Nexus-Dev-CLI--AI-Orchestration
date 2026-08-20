@@ -59,30 +59,30 @@
 - Consumes: approved architecture and existing Apache-2.0 repository.
 - Produces: `make bootstrap`, `make format-check`, `make test`, and workspace roots used by every later task.
 
-- [ ] **Step 1: Add the focused failing test**
+- [x] **Step 1: Add the focused failing test**
 
 Create `bootstrap_test.dart` asserting `NexusApp` renders a `MaterialApp.router`, and add a shell check that required workspace manifests exist and no tracked file matches secret patterns.
 
-- [ ] **Step 2: Verify the relevant failure**
+- [x] **Step 2: Verify the relevant failure**
 
 Run: `cd apps/mobile && flutter test test/bootstrap_test.dart` locally, or the pinned `bootstrap.yml` GitHub Actions job when local Flutter is unavailable.
 Expected: compilation fails because `NexusApp` and the application package do not exist.
 
-- [ ] **Step 3: Implement the minimum behavior**
+- [x] **Step 3: Implement the minimum behavior**
 
 Generate Flutter Android/iOS runners under `apps/mobile`, declare pinned direct dependencies, create empty Rust and Elixir workspace members, add local PostgreSQL/pgvector and service definitions, and document one command per build stage. `.env.example` contains names and safe descriptions only.
 
-- [ ] **Step 4: Verify the focused pass**
+- [x] **Step 4: Verify the focused pass**
 
 Run: `cd apps/mobile && flutter test test/bootstrap_test.dart`
 Expected: one bootstrap widget test passes.
 
-- [ ] **Step 5: Run the affected integration check**
+- [x] **Step 5: Run the affected integration check**
 
 Run: `make format-check && make test`
 Expected: all available empty-workspace format and test checks pass without credentials.
 
-- [ ] **Step 6: Commit the passing deliverable**
+- [x] **Step 6: Commit the passing deliverable**
 
 ```bash
 git add .gitignore .env.example .tool-versions Makefile README.md Cargo.toml Cargo.lock docker-compose.yml melos.yaml apps/mobile crates/nexus_core crates/nexus_gateway services/orchestrator .github/workflows/bootstrap.yml

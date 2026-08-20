@@ -1,4 +1,4 @@
-.PHONY: bootstrap format format-check test flutter-test rust-test clean
+.PHONY: bootstrap format format-check test flutter-test rust-test schema-test clean
 
 bootstrap:
 	cd apps/mobile && flutter pub get
@@ -24,6 +24,10 @@ flutter-test:
 
 rust-test:
 	cargo test --workspace --locked
+
+schema-test:
+	cd apps/mobile && flutter test test/core/api/schema_contract_test.dart
+	cargo test -p nexus_gateway --test schema_contract --locked
 
 clean:
 	cd apps/mobile && flutter clean
