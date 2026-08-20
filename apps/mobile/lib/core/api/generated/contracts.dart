@@ -356,11 +356,8 @@ final class ReasoningCapabilityDto {
           (json['supportedUniversalLevels'] as List<Object?>)
               .cast<String>()
               .map(
-                (value) => _wireEnum(
-                  value,
-                  _reasoningLevels,
-                  'reasoning level',
-                ),
+                (value) =>
+                    _wireEnum(value, _reasoningLevels, 'reasoning level'),
               )
               .toList(growable: false),
       providerParameters: rawMappings.map(
@@ -386,10 +383,9 @@ final class ReasoningCapabilityDto {
         .map(_wireName)
         .toList(growable: false),
     'mappings': providerParameters.map(
-      (level, parameters) => MapEntry(
-        _wireName(level),
-        <String, Object?>{'providerParameters': parameters},
-      ),
+      (level, parameters) => MapEntry(_wireName(level), <String, Object?>{
+        'providerParameters': parameters,
+      }),
     ),
     'unsupportedPolicy': _wireName(unsupportedPolicy),
   };
@@ -407,11 +403,7 @@ final class ModelCapabilityDto {
 
   factory ModelCapabilityDto.fromJson(JsonMap json) => ModelCapabilityDto(
     exactModelId: _string(json, 'exactModelId'),
-    provider: _wireEnum(
-      _string(json, 'provider'),
-      _providerKinds,
-      'provider',
-    ),
+    provider: _wireEnum(_string(json, 'provider'), _providerKinds, 'provider'),
     supportsStreaming: _boolean(json, 'supportsStreaming'),
     reasoning: ReasoningCapabilityDto.fromJson(_map(json, 'reasoning')),
     contextWindowTokens: json['contextWindowTokens'] as int?,
@@ -432,8 +424,7 @@ final class ModelCapabilityDto {
     'provider': _wireName(provider),
     'supportsStreaming': supportsStreaming,
     'reasoning': reasoning.toJson(),
-    if (contextWindowTokens != null)
-      'contextWindowTokens': contextWindowTokens,
+    if (contextWindowTokens != null) 'contextWindowTokens': contextWindowTokens,
     if (extensions.isNotEmpty) 'extensions': extensions,
   };
 }
