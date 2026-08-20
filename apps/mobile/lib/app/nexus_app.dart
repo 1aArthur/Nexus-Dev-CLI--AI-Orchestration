@@ -66,13 +66,13 @@ class _NexusRouterDelegate extends RouterDelegate<_NexusRoute>
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      pages: const <Page<void>>[
+      pages: <Page<void>>[
         MaterialPage<void>(
           child: Scaffold(
             body: Center(
               child: Semantics(
                 header: true,
-                child: Text('NEXUS'),
+                child: const Text('NEXUS'),
               ),
             ),
           ),
