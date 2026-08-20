@@ -98,6 +98,11 @@ git commit -m "build: bootstrap nexus full-stack workspace"
 - Create: `packages/api_schema/execution-targets.schema.json`
 - Create: `packages/api_schema/generate.sh`
 - Create: `apps/mobile/lib/core/api/generated/README.md`
+- Create: `apps/mobile/lib/core/api/generated/contracts.dart`
+- Create: `apps/mobile/test/core/api/generated_contracts_test.dart`
+- Create: `crates/nexus_gateway/src/lib.rs`
+- Create: `crates/nexus_gateway/src/generated/mod.rs`
+- Create: `crates/nexus_gateway/tests/generated_contracts.rs`
 - Create: `crates/nexus_gateway/tests/schema_contract.rs`
 - Create: `apps/mobile/test/core/api/schema_contract_test.dart`
 
@@ -105,16 +110,16 @@ git commit -m "build: bootstrap nexus full-stack workspace"
 - Consumes: REST and WebSocket resources in the approved specification.
 - Produces: `MissionDto`, `MissionEventDto`, `ExecutionTargetDto`, `UsageRecordDto`, `ModelCapabilityDto`, `ApiErrorDto`, and generated Dart/Rust serializers.
 
-- [ ] **Step 1: Add the focused failing test**
+- [x] **Step 1: Add the focused failing test**
 
 Assert schemas require UUID identifiers, opaque pagination cursors, `traceId`, idempotency on mutations, per-mission event sequence, execution capabilities, usage provenance, and exact-model reasoning mappings.
 
-- [ ] **Step 2: Verify the relevant failure**
+- [x] **Step 2: Verify the relevant failure**
 
 Run: `make schema-test`
 Expected: schema validation fails because the contract files are absent.
 
-- [ ] **Step 3: Implement the minimum behavior**
+- [x] **Step 3: Implement the minimum behavior**
 
 Define OpenAPI 3.1 resources and JSON Schema 2020-12 events with discriminated unions. Generate immutable Dart models and Rust types; reject unknown mutation fields while preserving provider-native metadata only inside explicit extension maps.
 

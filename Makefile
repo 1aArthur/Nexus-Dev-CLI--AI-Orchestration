@@ -1,4 +1,4 @@
-.PHONY: bootstrap format format-check test flutter-test rust-test schema-test clean
+.PHONY: bootstrap format format-check test flutter-test rust-test schema-test schema-generate clean
 
 bootstrap:
 	cd apps/mobile && flutter pub get
@@ -26,8 +26,11 @@ rust-test:
 	cargo test --workspace --locked
 
 schema-test:
-	cd apps/mobile && flutter test test/core/api/schema_contract_test.dart
+	cd apps/mobile && flutter test test/core/api
 	cargo test -p nexus_gateway --test schema_contract --locked
+
+schema-generate:
+	./packages/api_schema/generate.sh
 
 clean:
 	cd apps/mobile && flutter clean
