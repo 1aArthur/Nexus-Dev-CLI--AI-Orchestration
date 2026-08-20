@@ -123,17 +123,17 @@ Expected: schema validation fails because the contract files are absent.
 
 Define OpenAPI 3.1 resources and JSON Schema 2020-12 events with discriminated unions. Generate immutable Dart models and Rust types; reject unknown mutation fields while preserving provider-native metadata only inside explicit extension maps.
 
-- [ ] **Step 4: Verify the focused pass**
+- [x] **Step 4: Verify the focused pass**
 
 Run: `make schema-test`
 Expected: schemas validate and Dart/Rust fixtures deserialize to equivalent values.
 
-- [ ] **Step 5: Run the affected integration check**
+- [x] **Step 5: Run the affected integration check**
 
 Run: `make schema-generate && git diff --exit-code packages/api_schema apps/mobile/lib/core/api/generated crates/nexus_gateway/src/generated`
 Expected: generation is deterministic with no drift.
 
-- [ ] **Step 6: Commit the passing deliverable**
+- [x] **Step 6: Commit the passing deliverable**
 
 ```bash
 git add packages/api_schema apps/mobile/lib/core/api apps/mobile/test/core/api crates/nexus_gateway
