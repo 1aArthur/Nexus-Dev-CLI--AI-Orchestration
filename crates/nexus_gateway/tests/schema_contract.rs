@@ -7,9 +7,8 @@ fn contract(name: &str) -> String {
         .expect("gateway crate must live below the workspace root")
         .to_path_buf();
     let path = root.join("packages/api_schema").join(name);
-    fs::read_to_string(&path).unwrap_or_else(|error| {
-        panic!("missing schema contract {}: {error}", path.display())
-    })
+    fs::read_to_string(&path)
+        .unwrap_or_else(|error| panic!("missing schema contract {}: {error}", path.display()))
 }
 
 #[test]
@@ -27,7 +26,10 @@ fn openapi_contract_contains_shared_security_invariants() {
         "ModelCapabilityDto",
         "ApiErrorDto",
     ] {
-        assert!(source.contains(token), "OpenAPI contract is missing {token}");
+        assert!(
+            source.contains(token),
+            "OpenAPI contract is missing {token}"
+        );
     }
 }
 
@@ -46,11 +48,7 @@ fn websocket_and_capability_contracts_are_explicit() {
     }
 
     let models = contract("model-capabilities.schema.json");
-    for token in [
-        "exactModelId",
-        "providerParameters",
-        "unsupportedPolicy",
-    ] {
+    for token in ["exactModelId", "providerParameters", "unsupportedPolicy"] {
         assert!(models.contains(token), "model contract is missing {token}");
     }
 
@@ -63,6 +61,9 @@ fn websocket_and_capability_contracts_are_explicit() {
         "capabilities",
         "approvalMode",
     ] {
-        assert!(targets.contains(token), "target contract is missing {token}");
+        assert!(
+            targets.contains(token),
+            "target contract is missing {token}"
+        );
     }
 }
