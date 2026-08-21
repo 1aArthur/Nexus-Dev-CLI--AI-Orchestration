@@ -155,32 +155,32 @@ git commit -m "feat: define shared nexus contracts"
 
 **Interfaces:**
 - Consumes: generated DTOs from Task 2 and Kotlin concepts `AgentType`, `AgentState`, mission phases, security findings, SBOM, telemetry, terminal shells, tasks, workflows, audits, Skills, debates, and tools.
-- Produces: immutable Dart domain records, DTO mappers, Drift tables, cached read repositories, and unsent-draft storage.
+- Produces: immutable Dart domain records, DTO mappers, SQLite tables, cached read repositories, and unsent-draft storage.
 
-- [ ] **Step 1: Add the focused failing test**
+- [x] **Step 1: Add the focused failing test**
 
 Cover all enum values, terminal-state protection, DTO round trips, increasing event sequences, cache freshness, draft persistence, and preservation of both versions during offline conflicts.
 
-- [ ] **Step 2: Verify the relevant failure**
+- [x] **Step 2: Verify the relevant failure**
 
 Run: `cd apps/mobile && flutter test test/features/domain test/core/storage`
 Expected: imports fail because the Dart domain and database files are absent.
 
-- [ ] **Step 3: Implement the minimum behavior**
+- [x] **Step 3: Implement the minimum behavior**
 
-Port observable Kotlin data semantics without Android types. Store only read models and drafts locally; exclude provider credentials, raw microphone buffers, SSH credentials, signing material, and private audit payloads.
+Port observable Kotlin data semantics without Android types. Store only read models and drafts in generated-code-free SQLite; exclude provider credentials, raw microphone buffers, SSH credentials, signing material, and private audit payloads.
 
-- [ ] **Step 4: Verify the focused pass**
+- [x] **Step 4: Verify the focused pass**
 
 Run: `cd apps/mobile && flutter test test/features/domain test/core/storage`
 Expected: enum, mapping, lifecycle, and in-memory Drift tests pass.
 
-- [ ] **Step 5: Run the affected integration check**
+- [x] **Step 5: Run the affected integration check**
 
-Run: `cd apps/mobile && dart run build_runner build --delete-conflicting-outputs && git diff --exit-code lib/core/storage`
-Expected: Drift generation is deterministic.
+Run: `cd apps/mobile && flutter test test/features/domain test/core/storage && dart format --output=none --set-exit-if-changed lib/core/storage lib/features`
+Expected: SQLite storage behavior and Dart formatting are deterministic.
 
-- [ ] **Step 6: Commit the passing deliverable**
+- [x] **Step 6: Commit the passing deliverable**
 
 ```bash
 git add apps/mobile/lib/features apps/mobile/lib/core/storage apps/mobile/test/features apps/mobile/test/core/storage
