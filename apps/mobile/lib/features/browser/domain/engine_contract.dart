@@ -78,9 +78,9 @@ final class EngineSelectionRequest {
 
 @immutable
 final class EngineSelectionDecision {
-  const EngineSelectionDecision.accepted(EngineDescriptor engine)
-    : allowed = true,
-      engine = engine,
+  const EngineSelectionDecision.accepted(this.engine)
+    : assert(engine != null),
+      allowed = true,
       rejectionCode = null,
       missingCapabilities = const <EngineCapability>{};
 
