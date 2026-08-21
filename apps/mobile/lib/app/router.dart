@@ -16,7 +16,10 @@ GoRouter createNexusRouter() {
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
             routes: <RouteBase>[
-              GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
+              GoRoute(
+                path: '/',
+                builder: (context, state) => const DashboardScreen(),
+              ),
             ],
           ),
           _placeholderBranch('/agents', 'Agents', Icons.hub_outlined),
@@ -56,10 +59,8 @@ StatefulShellBranch _placeholderBranch(
     routes: <RouteBase>[
       GoRoute(
         path: path,
-        builder: (context, state) => FeaturePlaceholderScreen(
-          title: title,
-          icon: icon,
-        ),
+        builder: (context, state) =>
+            FeaturePlaceholderScreen(title: title, icon: icon),
       ),
     ],
   );
@@ -103,7 +104,11 @@ class MoreScreen extends StatelessWidget {
 }
 
 class FeaturePlaceholderScreen extends StatelessWidget {
-  const FeaturePlaceholderScreen({required this.title, required this.icon, super.key});
+  const FeaturePlaceholderScreen({
+    required this.title,
+    required this.icon,
+    super.key,
+  });
 
   final String title;
   final IconData icon;

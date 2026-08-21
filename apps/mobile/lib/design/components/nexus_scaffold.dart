@@ -18,27 +18,83 @@ class NexusDestination {
 }
 
 const primaryDestinations = <NexusDestination>[
-  NexusDestination(label: 'Dashboard', path: '/', icon: Icons.dashboard_outlined),
+  NexusDestination(
+    label: 'Dashboard',
+    path: '/',
+    icon: Icons.dashboard_outlined,
+  ),
   NexusDestination(label: 'Agents', path: '/agents', icon: Icons.hub_outlined),
-  NexusDestination(label: 'Voice', path: '/voice', icon: Icons.mic_none_outlined),
-  NexusDestination(label: 'Terminal', path: '/terminal', icon: Icons.terminal_outlined),
+  NexusDestination(
+    label: 'Voice',
+    path: '/voice',
+    icon: Icons.mic_none_outlined,
+  ),
+  NexusDestination(
+    label: 'Terminal',
+    path: '/terminal',
+    icon: Icons.terminal_outlined,
+  ),
   NexusDestination(label: 'More', path: '/more', icon: Icons.apps_outlined),
 ];
 
 const extendedDestinations = <NexusDestination>[
-  NexusDestination(label: 'Workflows', path: 'workflows', icon: Icons.account_tree_outlined),
-  NexusDestination(label: 'Research', path: 'research', icon: Icons.travel_explore_outlined),
-  NexusDestination(label: 'Security', path: 'security', icon: Icons.shield_outlined),
+  NexusDestination(
+    label: 'Workflows',
+    path: 'workflows',
+    icon: Icons.account_tree_outlined,
+  ),
+  NexusDestination(
+    label: 'Research',
+    path: 'research',
+    icon: Icons.travel_explore_outlined,
+  ),
+  NexusDestination(
+    label: 'Security',
+    path: 'security',
+    icon: Icons.shield_outlined,
+  ),
   NexusDestination(label: 'Tools', path: 'tools', icon: Icons.build_outlined),
-  NexusDestination(label: 'Skills', path: 'skills', icon: Icons.auto_awesome_outlined),
-  NexusDestination(label: 'CI/CD', path: 'cicd', icon: Icons.rocket_launch_outlined),
-  NexusDestination(label: 'Extensions', path: 'extensions', icon: Icons.extension_outlined),
-  NexusDestination(label: 'Knowledge', path: 'knowledge', icon: Icons.menu_book_outlined),
-  NexusDestination(label: 'Instructions', path: 'instructions', icon: Icons.rule_outlined),
+  NexusDestination(
+    label: 'Skills',
+    path: 'skills',
+    icon: Icons.auto_awesome_outlined,
+  ),
+  NexusDestination(
+    label: 'CI/CD',
+    path: 'cicd',
+    icon: Icons.rocket_launch_outlined,
+  ),
+  NexusDestination(
+    label: 'Extensions',
+    path: 'extensions',
+    icon: Icons.extension_outlined,
+  ),
+  NexusDestination(
+    label: 'Knowledge',
+    path: 'knowledge',
+    icon: Icons.menu_book_outlined,
+  ),
+  NexusDestination(
+    label: 'Instructions',
+    path: 'instructions',
+    icon: Icons.rule_outlined,
+  ),
   NexusDestination(label: 'Pets', path: 'pets', icon: Icons.pets_outlined),
-  NexusDestination(label: 'Themes', path: 'themes', icon: Icons.palette_outlined),
-  NexusDestination(label: 'Credits', path: 'credits', icon: Icons.receipt_long_outlined),
-  NexusDestination(label: 'Settings', path: 'settings', icon: Icons.settings_outlined),
+  NexusDestination(
+    label: 'Themes',
+    path: 'themes',
+    icon: Icons.palette_outlined,
+  ),
+  NexusDestination(
+    label: 'Credits',
+    path: 'credits',
+    icon: Icons.receipt_long_outlined,
+  ),
+  NexusDestination(
+    label: 'Settings',
+    path: 'settings',
+    icon: Icons.settings_outlined,
+  ),
 ];
 
 class NexusScaffold extends StatelessWidget {

@@ -12,11 +12,16 @@ class DashboardScreen extends StatelessWidget {
     return Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: NexusBreakpoints.contentMax),
+        constraints: const BoxConstraints(
+          maxWidth: NexusBreakpoints.contentMax,
+        ),
         child: ListView(
           padding: const EdgeInsets.all(NexusSpacing.x4),
           children: <Widget>[
-            Text('Command deck', style: Theme.of(context).textTheme.headlineLarge),
+            Text(
+              'Command deck',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
             const SizedBox(height: NexusSpacing.x2),
             Text(
               'Coordinate agents and choose exactly where every command runs.',
@@ -29,7 +34,10 @@ class DashboardScreen extends StatelessWidget {
               children: <Widget>[
                 const Tooltip(
                   message: 'Connect a provider before creating a mission.',
-                  child: FilledButton(onPressed: null, child: Text('Create mission')),
+                  child: FilledButton(
+                    onPressed: null,
+                    child: Text('Create mission'),
+                  ),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => context.go('/terminal'),
@@ -53,7 +61,10 @@ class DashboardScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text('Active work', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Active work',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: NexusSpacing.x2),
                     const Text(
                       'No mission is running. Connect a provider and select an execution target to begin.',

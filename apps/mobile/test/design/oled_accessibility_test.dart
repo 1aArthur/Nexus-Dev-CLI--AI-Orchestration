@@ -25,7 +25,9 @@ void main() {
     expect(size.height, greaterThanOrEqualTo(48));
   });
 
-  testWidgets('status badge communicates state with semantics and text', (tester) async {
+  testWidgets('status badge communicates state with semantics and text', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
