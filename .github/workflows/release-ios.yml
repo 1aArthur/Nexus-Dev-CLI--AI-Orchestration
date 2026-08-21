@@ -1,0 +1,144 @@
+name: Signed iOS release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-ios-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  signed-ios:
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: release-ios
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      IOS_DISTRIBUTION_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
+      IOS_DISTRIBUTION_P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}
+      IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+      IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout protected tag
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+        with:
+          fetch-depth: 0
+
+      - name: Validate signing inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$IOS_DISTRIBUTION_P12_BASE64"
+          test -n "$IOS_DISTRIBUTION_P12_PASSWORD"
+          test -n "$IOS_PROVISIONING_PROFILE_BASE64"
+          test -n "$IOS_KEYCHAIN_PASSWORD"
+          test -n "$APPLE_TEAM_ID"
+          test -n "$IOS_BUNDLE_ID"
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+
+      - name: Import temporary Apple signing identity
+        id: signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          p12="$RUNNER_TEMP/nexus-distribution.p12"
+          profile="$RUNNER_TEMP/nexus.mobileprovision"
+          keychain="$RUNNER_TEMP/nexus-signing.keychain-db"
+          printf '%s' "$IOS_DISTRIBUTION_P12_BASE64" | base64 --decode > "$p12"
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$profile"
+          chmod 600 "$p12" "$profile"
+          security create-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$keychain"
+          security import "$p12" -k "$keychain" -P "$IOS_DISTRIBUTION_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security list-keychains -d user -s "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$IOS_KEYCHAIN_PASSWORD" "$keychain"
+          security cms -D -i "$profile" > "$RUNNER_TEMP/profile.plist"
+          uuid=$(/usr/libexec/PlistBuddy -c 'Print UUID' "$RUNNER_TEMP/profile.plist")
+          profile_name=$(/usr/libexec/PlistBuddy -c 'Print Name' "$RUNNER_TEMP/profile.plist")
+          profile_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$profile_dir"
+          cp "$profile" "$profile_dir/$uuid.mobileprovision"
+          printf 'profile_uuid=%s\n' "$uuid" >> "$GITHUB_OUTPUT"
+          printf 'profile_name=%s\n' "$profile_name" >> "$GITHUB_OUTPUT"
+          printf 'keychain=%s\n' "$keychain" >> "$GITHUB_OUTPUT"
+          printf 'installed_profile=%s\n' "$profile_dir/$uuid.mobileprovision" >> "$GITHUB_OUTPUT"
+
+      - name: Build and verify signed IPA
+        working-directory: apps/mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/Nexus.xcarchive"
+          export_dir="$RUNNER_TEMP/nexus-ipa"
+          export_options="$RUNNER_TEMP/ExportOptions.plist"
+          cleanup() {
+            rm -f "${{ steps.signing.outputs.installed_profile }}"
+            security delete-keychain "${{ steps.signing.outputs.keychain }}" || true
+            rm -f "$RUNNER_TEMP/nexus-distribution.p12" "$RUNNER_TEMP/nexus.mobileprovision" "$RUNNER_TEMP/profile.plist" "$export_options"
+          }
+          trap cleanup EXIT
+          flutter create --platforms=ios --org dev.nexus --project-name nexus_mobile .
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib test
+          flutter analyze
+          flutter test
+          flutter build ios --release --no-codesign
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath "$archive" \
+            archive \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="${{ steps.signing.outputs.profile_name }}" \
+            CODE_SIGN_IDENTITY="Apple Distribution"
+          cat > "$export_options" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>provisioningProfiles</key><dict>
+              <key>$IOS_BUNDLE_ID</key><string>${{ steps.signing.outputs.profile_name }}</string>
+            </dict>
+            <key>stripSwiftSymbols</key><true/>
+            <key>uploadSymbols</key><false/>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$archive" \
+            -exportOptionsPlist "$export_options" \
+            -exportPath "$export_dir"
+          codesign --verify --deep --strict "$archive/Products/Applications/Runner.app"
+          codesign -dv --verbose=4 "$archive/Products/Applications/Runner.app" 2> "$export_dir/CODESIGN-INFO.txt"
+          shasum -a 256 "$export_dir"/*.ipa > "$export_dir/SHA256SUMS-ios.txt"
+
+      - name: Publish signed iOS assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          gh release view "$tag" >/dev/null 2>&1 || \
+            gh release create "$tag" --verify-tag --generate-notes
+          gh release upload "$tag" --clobber \
+            "$RUNNER_TEMP/nexus-ipa"/*.ipa \
+            "$RUNNER_TEMP/nexus-ipa/CODESIGN-INFO.txt" \
+            "$RUNNER_TEMP/nexus-ipa/SHA256SUMS-ios.txt"

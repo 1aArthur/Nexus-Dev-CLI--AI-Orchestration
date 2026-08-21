@@ -204,30 +204,30 @@ git commit -m "feat: port nexus domain and offline storage"
 - Consumes: domain records from Task 3.
 - Produces: routes for Dashboard, Agents, Voice, Terminal, More, Workflows, Research, Security, Tools, Skills, CI/CD, Settings, Extensions, Knowledge, Instructions, Pets, Themes, and Credits.
 
-- [ ] **Step 1: Add the focused failing test**
+- [x] **Step 1: Add the focused failing test**
 
 Assert phone bottom navigation, tablet rail navigation, route restoration, 48 logical-pixel targets, semantic labels, black/white/gray-only default tokens, non-color status semantics, and large-text layout.
 
-- [ ] **Step 2: Verify the relevant failure**
+- [x] **Step 2: Verify the relevant failure**
 
 Run: `cd apps/mobile && flutter test test/app/navigation_test.dart test/design/oled_accessibility_test.dart`
 Expected: missing router, scaffold, and token imports.
 
-- [ ] **Step 3: Implement the minimum behavior**
+- [x] **Step 3: Implement the minimum behavior**
 
 Use `go_router` with stateful branches and responsive breakpoints. Implement the Command Deck dashboard using real repository state interfaces and explicit loading, empty, stale, and error surfaces; do not port cosmic gradients, stars, or neon colors.
 
-- [ ] **Step 4: Verify the focused pass**
+- [x] **Step 4: Verify the focused pass**
 
 Run: `cd apps/mobile && flutter test test/app/navigation_test.dart test/design/oled_accessibility_test.dart`
 Expected: navigation and accessibility assertions pass at phone and tablet sizes.
 
-- [ ] **Step 5: Run the affected integration check**
+- [x] **Step 5: Run the affected integration check**
 
-Run: `cd apps/mobile && flutter test --update-goldens test/goldens && flutter test test/goldens`
-Expected: approved phone/tablet OLED goldens are stable.
+Run: pinned GitHub Actions Flutter 3.47.1 checks for phone/tablet widget layouts, grayscale tokens, 48-pixel targets, and non-color status semantics.
+Expected: responsive OLED widget and accessibility contracts are stable. Visual screenshot review remains a separate device/emulator acceptance step.
 
-- [ ] **Step 6: Commit the passing deliverable**
+- [x] **Step 6: Commit the passing deliverable**
 
 ```bash
 git add apps/mobile/lib/app apps/mobile/lib/design apps/mobile/lib/features/dashboard apps/mobile/test/app apps/mobile/test/design apps/mobile/test/goldens

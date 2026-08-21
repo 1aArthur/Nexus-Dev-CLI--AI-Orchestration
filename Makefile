@@ -1,4 +1,4 @@
-.PHONY: bootstrap format format-check test flutter-test rust-test schema-test schema-generate clean
+.PHONY: bootstrap format format-check test flutter-test rust-test schema-test schema-generate workflow-policy-test clean
 
 bootstrap:
 	cd apps/mobile && flutter pub get
@@ -31,6 +31,9 @@ schema-test:
 
 schema-generate:
 	./packages/api_schema/generate.sh
+
+workflow-policy-test:
+	./tests/contract/release_workflow_policy.sh
 
 clean:
 	cd apps/mobile && flutter clean
