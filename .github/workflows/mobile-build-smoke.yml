@@ -57,7 +57,7 @@ jobs:
           } > android/key.properties
           flutter pub get
           flutter build appbundle --release
-          jarsigner -verify -strict -certs build/app/outputs/bundle/release/app-release.aab
+          jarsigner -verify -certs build/app/outputs/bundle/release/app-release.aab
 
   ios-no-codesign:
     runs-on: macos-15

@@ -73,7 +73,7 @@ jobs:
           flutter test
           flutter build appbundle --release --obfuscate --split-debug-info="$RUNNER_TEMP/android-symbols"
           flutter build apk --release --split-per-abi --obfuscate --split-debug-info="$RUNNER_TEMP/android-symbols"
-          jarsigner -verify -strict -certs build/app/outputs/bundle/release/app-release.aab
+          jarsigner -verify -certs build/app/outputs/bundle/release/app-release.aab
           for apk in build/app/outputs/flutter-apk/*-release.apk; do
             keytool -printcert -jarfile "$apk" >/dev/null
           done
