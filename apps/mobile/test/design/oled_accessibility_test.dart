@@ -38,12 +38,10 @@ void main() {
 
     expect(find.text('Ready'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
-    final semantics = tester.widget<Semantics>(
-      find.descendant(
-        of: find.byType(StatusBadge),
-        matching: find.byType(Semantics),
-      ),
+    final statusSemantics = find.byWidgetPredicate(
+      (widget) =>
+          widget is Semantics && widget.properties.label == 'Status: Ready',
     );
-    expect(semantics.properties.label, 'Status: Ready');
+    expect(statusSemantics, findsOneWidget);
   });
 }
