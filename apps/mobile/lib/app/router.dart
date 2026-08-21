@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../design/components/nexus_scaffold.dart';
+import '../features/agents/presentation/agent_matrix_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/missions/presentation/mission_composer_screen.dart';
 
 GoRouter createNexusRouter() {
   return GoRouter(
@@ -22,7 +24,23 @@ GoRouter createNexusRouter() {
               ),
             ],
           ),
-          _placeholderBranch('/agents', 'Agents', Icons.hub_outlined),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/agents',
+                builder: (context, state) => AgentMatrixScreen(
+                  onCreateMission: () => context.go('/agents/compose'),
+                ),
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: 'compose',
+                    builder: (context, state) =>
+                        const MissionComposerScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
           _placeholderBranch('/voice', 'Voice', Icons.mic_none_outlined),
           _placeholderBranch('/terminal', 'Terminal', Icons.terminal_outlined),
           StatefulShellBranch(
