@@ -7,10 +7,12 @@ void main() {
   testWidgets('renders agent provenance, grants, cost, and approval state', (
     tester,
   ) async {
+    String? cancelledAgentId;
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: AgentMatrixScreen(
-          agents: <AgentRunView>[
+          onCancel: (agentId) => cancelledAgentId = agentId,
+          agents: const <AgentRunView>[
             AgentRunView(
               id: 'agent-1',
               name: 'Security reviewer',
@@ -38,7 +40,10 @@ void main() {
     expect(find.textContaining('repository:read'), findsOneWidget);
     expect(find.textContaining('Approval required'), findsOneWidget);
     expect(find.textContaining('Production signing'), findsOneWidget);
-    expect(find.bySemanticsLabel('Cancel Security reviewer'), findsOneWidget);
+    final cancel = find.byTooltip('Cancel Security reviewer');
+    expect(cancel, findsOneWidget);
+    await tester.tap(cancel);
+    expect(cancelledAgentId, 'agent-1');
   });
 
   testWidgets('empty matrix explains how to start a mission', (tester) async {
