@@ -29,6 +29,11 @@ void main() {
         ),
       );
 
+      await tester.scrollUntilVisible(
+        find.text('Signature · Verified'),
+        200,
+      );
+
       expect(find.text('Signature · Verified'), findsOneWidget);
       expect(find.text('License · Apache-2.0'), findsOneWidget);
       expect(
@@ -64,6 +69,11 @@ void main() {
           ],
         ),
       ),
+      );
+
+    await tester.scrollUntilVisible(
+      find.text('Mobile · Declarative UI only'),
+      200,
     );
 
     expect(find.text('Mobile · Declarative UI only'), findsOneWidget);
