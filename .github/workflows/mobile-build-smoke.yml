@@ -60,7 +60,11 @@ jobs:
           flutter build appbundle --release
           flutter build apk --release
           jarsigner -verify -certs build/app/outputs/bundle/release/app-release.aab
-          keytool -printcert -jarfile build/app/outputs/flutter-apk/app-release.apk >/dev/null
+          apksigner_path="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner -print | sort -V | tail -n 1)"
+          test -x "$apksigner_path"
+          export PATH="$(dirname "$apksigner_path"):$PATH"
+          apksigner verify --verbose --print-certs \
+            build/app/outputs/flutter-apk/app-release.apk
           mkdir -p "$dist"
           short_sha="${GITHUB_SHA:0:12}"
           cp build/app/outputs/bundle/release/app-release.aab \

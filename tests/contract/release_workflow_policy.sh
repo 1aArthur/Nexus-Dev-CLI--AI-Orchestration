@@ -35,6 +35,7 @@ done
 
 grep -Fq "ANDROID_KEYSTORE_BASE64" "$android"
 grep -Fq "jarsigner -verify" "$android"
+require_text "apksigner verify --verbose --print-certs" "$android"
 grep -Fq "IOS_DISTRIBUTION_P12_BASE64" "$ios"
 grep -Fq "codesign --verify" "$ios"
 
@@ -42,6 +43,7 @@ grep -Fq "codesign --verify" "$ios"
 # weakening the guarded production signing workflows.
 require_text "flutter build appbundle --release" "$smoke"
 require_text "flutter build apk --release" "$smoke"
+require_text "apksigner verify --verbose --print-certs" "$smoke"
 require_text "SHA256SUMS-android.txt" "$smoke"
 require_text "SHA256SUMS-ios.txt" "$smoke"
 test "$(grep -Fc "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" "$smoke")" -eq 2
