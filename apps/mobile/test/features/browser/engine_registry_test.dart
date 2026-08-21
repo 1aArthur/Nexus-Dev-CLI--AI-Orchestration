@@ -69,49 +69,59 @@ void main() {
     ]);
 
     expect(
-      registry.evaluate(
-        const EngineSelectionRequest(
-          contextId: 'unknown',
-          engineId: 'missing',
-        ),
-      ).rejectionCode,
+      registry
+          .evaluate(
+            const EngineSelectionRequest(
+              contextId: 'unknown',
+              engineId: 'missing',
+            ),
+          )
+          .rejectionCode,
       EngineRejectionCode.unknownEngine,
     );
     expect(
-      registry.evaluate(
-        const EngineSelectionRequest(
-          contextId: 'pending',
-          engineId: 'pending-webview',
-        ),
-      ).rejectionCode,
+      registry
+          .evaluate(
+            const EngineSelectionRequest(
+              contextId: 'pending',
+              engineId: 'pending-webview',
+            ),
+          )
+          .rejectionCode,
       EngineRejectionCode.engineUnavailable,
     );
     expect(
-      registry.evaluate(
-        const EngineSelectionRequest(
-          contextId: 'experimental',
-          engineId: 'servo',
-        ),
-      ).rejectionCode,
+      registry
+          .evaluate(
+            const EngineSelectionRequest(
+              contextId: 'experimental',
+              engineId: 'servo',
+            ),
+          )
+          .rejectionCode,
       EngineRejectionCode.experimentalOptInRequired,
     );
     expect(
-      registry.evaluate(
-        const EngineSelectionRequest(
-          contextId: 'specialized',
-          engineId: 'ultralight',
-        ),
-      ).rejectionCode,
+      registry
+          .evaluate(
+            const EngineSelectionRequest(
+              contextId: 'specialized',
+              engineId: 'ultralight',
+            ),
+          )
+          .rejectionCode,
       EngineRejectionCode.notArbitraryWebEngine,
     );
     expect(
-      registry.evaluate(
-        const EngineSelectionRequest(
-          contextId: 'capability',
-          engineId: 'system-webview',
-          requiredCapabilities: <EngineCapability>{EngineCapability.webGpu},
-        ),
-      ).rejectionCode,
+      registry
+          .evaluate(
+            const EngineSelectionRequest(
+              contextId: 'capability',
+              engineId: 'system-webview',
+              requiredCapabilities: <EngineCapability>{EngineCapability.webGpu},
+            ),
+          )
+          .rejectionCode,
       EngineRejectionCode.missingCapabilities,
     );
   });

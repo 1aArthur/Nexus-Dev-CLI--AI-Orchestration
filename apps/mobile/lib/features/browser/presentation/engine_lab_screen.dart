@@ -5,10 +5,7 @@ import '../../../design/tokens.dart';
 import '../domain/engine_contract.dart';
 
 class EngineLabScreen extends StatelessWidget {
-  const EngineLabScreen({
-    this.engines = EngineCatalog.current,
-    super.key,
-  });
+  const EngineLabScreen({this.engines = EngineCatalog.current, super.key});
 
   final List<EngineDescriptor> engines;
 
@@ -18,7 +15,10 @@ class EngineLabScreen extends StatelessWidget {
       key: const Key('engine-lab'),
       padding: const EdgeInsets.all(NexusSpacing.x4),
       children: <Widget>[
-        Text('Nexus Engine Lab', style: Theme.of(context).textTheme.headlineLarge),
+        Text(
+          'Nexus Engine Lab',
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
         const SizedBox(height: NexusSpacing.x2),
         const Text(
           'One engine owns each browsing context. No alternative runtime is bundled in the production package.',

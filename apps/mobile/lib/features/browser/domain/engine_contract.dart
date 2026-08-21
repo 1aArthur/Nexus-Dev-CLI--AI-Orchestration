@@ -1,8 +1,18 @@
 import 'package:flutter/foundation.dart';
 
-enum EngineRole { productionWeb, experimentalWeb, specializedRenderer, nativeUi }
+enum EngineRole {
+  productionWeb,
+  experimentalWeb,
+  specializedRenderer,
+  nativeUi,
+}
 
-enum EngineAvailability { available, adapterPending, experimentalDisabled, notInstalled }
+enum EngineAvailability {
+  available,
+  adapterPending,
+  experimentalDisabled,
+  notInstalled,
+}
 
 enum EngineCapability {
   navigation,
@@ -111,7 +121,8 @@ abstract final class EngineCatalog {
       supportsArbitraryWeb: true,
       bundled: false,
       capabilities: <EngineCapability>{},
-      summary: 'Experimental Rust engine; admission requires measured evidence.',
+      summary:
+          'Experimental Rust engine; admission requires measured evidence.',
     ),
     EngineDescriptor(
       id: 'ultralight',
@@ -121,7 +132,8 @@ abstract final class EngineCatalog {
       supportsArbitraryWeb: false,
       bundled: false,
       capabilities: <EngineCapability>{},
-      summary: 'Specialized native renderer; never the default arbitrary-Web path.',
+      summary:
+          'Specialized native renderer; never the default arbitrary-Web path.',
     ),
     EngineDescriptor(
       id: 'lynx',
