@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/api/generated/contracts.dart';
 import '../data/execution_socket.dart';
 import '../domain/execution_target.dart';
 
