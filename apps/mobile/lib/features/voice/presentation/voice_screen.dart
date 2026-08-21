@@ -88,7 +88,8 @@ class _VoiceScreenState extends State<VoiceScreen> {
               label: const Text('Discard memory'),
             ),
             OutlinedButton.icon(
-              onPressed: controller == null ||
+              onPressed:
+                  controller == null ||
                       (state.inputTranscript.isEmpty &&
                           state.outputTranscript.isEmpty)
                   ? null

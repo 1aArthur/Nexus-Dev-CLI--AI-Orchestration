@@ -22,19 +22,15 @@ void main() {
     final session = transport.sent.single['session']! as Map<String, Object?>;
     final audio = session['audio']! as Map<String, Object?>;
     final input = audio['input']! as Map<String, Object?>;
-    final transcription =
-        input['transcription']! as Map<String, Object?>;
+    final transcription = input['transcription']! as Map<String, Object?>;
     expect(transcription['language_hint'], 'pt-BR');
     expect(session.toString(), isNot(contains('XAI_API_KEY')));
 
     await controller.sendPcm(Uint8List.fromList(<int>[1, 2, 3]));
-    expect(
-      transport.sent.last,
-      <String, Object?>{
-        'type': 'input_audio_buffer.append',
-        'audio': base64Encode(<int>[1, 2, 3]),
-      },
-    );
+    expect(transport.sent.last, <String, Object?>{
+      'type': 'input_audio_buffer.append',
+      'audio': base64Encode(<int>[1, 2, 3]),
+    });
 
     events.add(<String, Object?>{
       'type': 'conversation.item.input_audio_transcription.updated',
