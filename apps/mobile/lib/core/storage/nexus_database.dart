@@ -27,7 +27,8 @@ final class NexusDatabase {
 
   factory NexusDatabase.memory() => NexusDatabase._(sqlite3.openInMemory());
 
-  factory NexusDatabase.open(String path) => NexusDatabase._(sqlite3.open(path));
+  factory NexusDatabase.open(String path) =>
+      NexusDatabase._(sqlite3.open(path));
 
   final Database _database;
 
