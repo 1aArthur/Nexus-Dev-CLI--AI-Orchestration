@@ -75,9 +75,82 @@ final class VoiceState {
 }
 
 final class VoiceTranscriptReducer {
-  const VoiceTranscriptReducer();
+  const VoiceTranscriptReducer({this.maximumAudioChunks = 32});
+
+  final int maximumAudioChunks;
 
   VoiceState apply(VoiceState state, VoiceRealtimeEvent event) {
-    return state;
+    final sequence = event.sequence;
+    if (sequence != null && state.handledSequences.contains(sequence)) {
+      return state;
+    }
+    final handled = sequence == null
+        ? state.handledSequences
+        : Set<int>.unmodifiable(<int>{...state.handledSequences, sequence});
+
+    switch (event.type) {
+      case 'conversation.item.input_audio_transcription.updated':
+        return state.copyWith(
+          inputTranscript: event.transcript ?? state.inputTranscript,
+          handledSequences: handled,
+          saved: false,
+        );
+      case 'response.output_audio_transcript.delta':
+        return state.copyWith(
+          phase: VoicePhase.responding,
+          outputTranscript: '${state.outputTranscript}${event.delta ?? ''}',
+          handledSequences: handled,
+          saved: false,
+        );
+      case 'response.output_audio.delta':
+      case 'response.audio.delta':
+        final audio = event.audioBase64;
+        if (audio == null || audio.isEmpty) {
+          return state.copyWith(handledSequences: handled);
+        }
+        final chunks = <String>[...state.audioChunks, audio];
+        final retained = chunks.length > maximumAudioChunks
+            ? chunks.skip(chunks.length - maximumAudioChunks)
+            : chunks;
+        return state.copyWith(
+          phase: VoicePhase.responding,
+          audioChunks: List<String>.unmodifiable(retained),
+          handledSequences: handled,
+        );
+      case 'input_audio_buffer.speech_started':
+      case 'input_audio_buffer.speech_stopped':
+      case 'session.created':
+      case 'session.updated':
+        return state.copyWith(
+          phase: VoicePhase.listening,
+          handledSequences: handled,
+        );
+      case 'response.created':
+        return state.copyWith(
+          phase: VoicePhase.responding,
+          handledSequences: handled,
+        );
+      case 'response.done':
+        return state.copyWith(
+          phase: VoicePhase.listening,
+          handledSequences: handled,
+        );
+      case 'error':
+        return state.copyWith(
+          phase: VoicePhase.error,
+          handledSequences: handled,
+        );
+      default:
+        if (state.unknownEventTypes.contains(event.type)) return state;
+        final eventTypes = <String>[...state.unknownEventTypes, event.type];
+        return state.copyWith(
+          handledSequences: handled,
+          unknownEventTypes: List<String>.unmodifiable(
+            eventTypes.length > 20
+                ? eventTypes.skip(eventTypes.length - 20)
+                : eventTypes,
+          ),
+        );
+    }
   }
 }

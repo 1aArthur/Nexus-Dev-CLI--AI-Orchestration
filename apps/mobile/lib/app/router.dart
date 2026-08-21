@@ -6,6 +6,7 @@ import '../features/agents/presentation/agent_matrix_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/execution/presentation/terminal_screen.dart';
 import '../features/missions/presentation/mission_composer_screen.dart';
+import '../features/voice/presentation/voice_screen.dart';
 
 GoRouter createNexusRouter() {
   return GoRouter(
@@ -41,7 +42,14 @@ GoRouter createNexusRouter() {
               ),
             ],
           ),
-          _placeholderBranch('/voice', 'Voice', Icons.mic_none_outlined),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/voice',
+                builder: (context, state) => const VoiceScreen(),
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
@@ -70,22 +78,6 @@ GoRouter createNexusRouter() {
             ],
           ),
         ],
-      ),
-    ],
-  );
-}
-
-StatefulShellBranch _placeholderBranch(
-  String path,
-  String title,
-  IconData icon,
-) {
-  return StatefulShellBranch(
-    routes: <RouteBase>[
-      GoRoute(
-        path: path,
-        builder: (context, state) =>
-            FeaturePlaceholderScreen(title: title, icon: icon),
       ),
     ],
   );
