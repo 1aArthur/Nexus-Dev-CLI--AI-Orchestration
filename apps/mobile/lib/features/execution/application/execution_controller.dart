@@ -5,7 +5,12 @@ import '../domain/execution_target.dart';
 
 enum TerminalShell { bash, zsh, fish, nushell }
 
-enum SafeNativeOperation { hashFile, parseJson, redactDiagnostics, summarizeDiff }
+enum SafeNativeOperation {
+  hashFile,
+  parseJson,
+  redactDiagnostics,
+  summarizeDiff,
+}
 
 final class ExecutionTargetPolicy {
   const ExecutionTargetPolicy({
@@ -69,10 +74,7 @@ final class ExecutionController extends ChangeNotifier {
   }
 
   Future<void> reconnect() async {
-    await socket.connect(
-      executionId: _state.executionId!,
-      afterSequence: 0,
-    );
+    await socket.connect(executionId: _state.executionId!, afterSequence: 0);
   }
 
   void ingest(ExecutionFrame frame) {
