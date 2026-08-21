@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.nexus.invalid/theme-pack.schema.json",
+  "title": "Nexus Theme Pack manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "version",
+    "license",
+    "publisher",
+    "signature",
+    "assets",
+    "settings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$",
+      "maxLength": 128
+    },
+    "name": { "type": "string", "minLength": 1, "maxLength": 96 },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "license": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "publisher": { "$ref": "#/$defs/publisher" },
+    "signature": { "$ref": "#/$defs/signature" },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/mediaAsset" }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "focalX",
+        "focalY",
+        "cropZoom",
+        "blurSigma",
+        "dimming",
+        "loop",
+        "parallax"
+      ],
+      "properties": {
+        "focalX": { "type": "number", "minimum": 0, "maximum": 1 },
+        "focalY": { "type": "number", "minimum": 0, "maximum": 1 },
+        "cropZoom": { "type": "number", "minimum": 1, "maximum": 3 },
+        "blurSigma": { "type": "number", "minimum": 0, "maximum": 24 },
+        "dimming": { "type": "number", "minimum": 0, "maximum": 0.85 },
+        "loop": { "type": "boolean" },
+        "parallax": { "type": "boolean" }
+      }
+    },
+    "sync": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "const": true },
+        "encrypted": { "const": true }
+      }
+    }
+  },
+  "$defs": {
+    "publisher": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "name": { "type": "string", "minLength": 1, "maxLength": 96 }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "keyId", "manifestSha256", "value"],
+      "properties": {
+        "algorithm": { "const": "Ed25519" },
+        "keyId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "manifestSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "value": { "type": "string", "minLength": 32, "maxLength": 256 }
+      }
+    },
+    "baseMedia": {
+      "type": "object",
+      "required": ["type", "path", "mimeType", "sha256", "width", "height"],
+      "properties": {
+        "type": { "enum": ["image", "video"] },
+        "path": {
+          "type": "string",
+          "pattern": "^assets/[A-Za-z0-9._/-]+$",
+          "maxLength": 256
+        },
+        "mimeType": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "width": { "type": "integer", "minimum": 1, "maximum": 7680 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 4320 }
+      }
+    },
+    "mediaAsset": {
+      "oneOf": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/baseMedia" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "path", "mimeType", "sha256", "width", "height"],
+              "properties": {
+                "type": { "const": "image" },
+                "path": {
+                  "type": "string",
+                  "pattern": "^assets/[A-Za-z0-9._/-]+$",
+                  "maxLength": 256
+                },
+                "mimeType": {
+                  "enum": ["image/jpeg", "image/png", "image/webp"]
+                },
+                "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+                "width": { "type": "integer", "minimum": 1, "maximum": 7680 },
+                "height": { "type": "integer", "minimum": 1, "maximum": 4320 }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/baseMedia" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "path",
+                "mimeType",
+                "sha256",
+                "width",
+                "height",
+                "durationSeconds",
+                "posterPath",
+                "muted"
+              ],
+              "properties": {
+                "type": { "const": "video" },
+                "path": {
+                  "type": "string",
+                  "pattern": "^assets/[A-Za-z0-9._/-]+\\.mp4$",
+                  "maxLength": 256
+                },
+                "mimeType": { "const": "video/mp4" },
+                "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+                "width": { "type": "integer", "minimum": 1, "maximum": 3840 },
+                "height": { "type": "integer", "minimum": 1, "maximum": 2160 },
+                "durationSeconds": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 30
+                },
+                "posterPath": {
+                  "type": "string",
+                  "pattern": "^assets/[A-Za-z0-9._/-]+$",
+                  "maxLength": 256
+                },
+                "muted": { "const": true }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

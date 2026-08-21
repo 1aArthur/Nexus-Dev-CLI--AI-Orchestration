@@ -5,7 +5,13 @@ import '../design/components/nexus_scaffold.dart';
 import '../features/agents/presentation/agent_matrix_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/execution/presentation/terminal_screen.dart';
+import '../features/extensions/domain/package_descriptor.dart';
+import '../features/extensions/presentation/extensions_screen.dart';
+import '../features/instructions/presentation/instructions_screen.dart';
+import '../features/knowledge/presentation/knowledge_screen.dart';
 import '../features/missions/presentation/mission_composer_screen.dart';
+import '../features/pets/presentation/pets_screen.dart';
+import '../features/themes/presentation/theme_editor_screen.dart';
 import '../features/voice/presentation/voice_screen.dart';
 
 GoRouter createNexusRouter() {
@@ -67,10 +73,8 @@ GoRouter createNexusRouter() {
                     .map(
                       (destination) => GoRoute(
                         path: destination.path,
-                        builder: (context, state) => FeaturePlaceholderScreen(
-                          title: destination.label,
-                          icon: destination.icon,
-                        ),
+                        builder: (context, state) =>
+                            _screenForDestination(destination),
                       ),
                     )
                     .toList(growable: false),
@@ -81,6 +85,21 @@ GoRouter createNexusRouter() {
       ),
     ],
   );
+}
+
+Widget _screenForDestination(NexusDestination destination) {
+  return switch (destination.path) {
+    'skills' => const ExtensionsScreen(kindFilter: PackageKind.skill),
+    'extensions' => const ExtensionsScreen(),
+    'knowledge' => const KnowledgeScreen(),
+    'instructions' => const InstructionsScreen(),
+    'pets' => const PetsScreen(),
+    'themes' => const ThemeEditorScreen(),
+    _ => FeaturePlaceholderScreen(
+      title: destination.label,
+      icon: destination.icon,
+    ),
+  };
 }
 
 String _titleForLocation(String path) {

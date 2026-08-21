@@ -1,4 +1,4 @@
-.PHONY: bootstrap format format-check test flutter-test rust-test schema-test schema-generate workflow-policy-test clean
+.PHONY: bootstrap format format-check test flutter-test rust-test schema-test package-schema-test schema-generate workflow-policy-test clean
 
 bootstrap:
 	cd apps/mobile && flutter pub get
@@ -28,6 +28,9 @@ rust-test:
 schema-test:
 	cd apps/mobile && flutter test test/core/api
 	cargo test -p nexus_gateway --test schema_contract --locked
+
+package-schema-test:
+	bash ./tests/contract/package_schema_policy.sh
 
 schema-generate:
 	./packages/api_schema/generate.sh

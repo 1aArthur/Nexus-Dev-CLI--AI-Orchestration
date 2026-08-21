@@ -22,6 +22,8 @@ jobs:
         uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
       - name: Verify guarded release workflows
         run: make workflow-policy-test
+      - name: Verify package manifest policies
+        run: make package-schema-test
 
   flutter-contract:
     runs-on: ubuntu-latest
