@@ -33,42 +33,45 @@ void main() {
     expect(transport.connectedUris.single.host, 'api.x.ai');
   });
 
-  test('discard clears memory and never persists without explicit save', () async {
-    final store = _RecordingStore();
-    final transport = _RecordingTransport();
-    final controller = VoiceController(
-      broker: _QueueBroker(<RealtimeClientSecret>[
-        RealtimeClientSecret(
-          value: 'ephemeral',
-          expiresAt: now.add(const Duration(minutes: 5)),
-        ),
-      ]),
-      transport: transport,
-      store: store,
-      clock: () => now,
-    );
-    controller.handleEvent(<String, Object?>{
-      'type': 'conversation.item.input_audio_transcription.updated',
-      'sequence': 1,
-      'transcript': 'Não persista automaticamente',
-    });
-    controller.handleEvent(<String, Object?>{
-      'type': 'response.output_audio.delta',
-      'sequence': 2,
-      'delta': 'cGNt',
-    });
+  test(
+    'discard clears memory and never persists without explicit save',
+    () async {
+      final store = _RecordingStore();
+      final transport = _RecordingTransport();
+      final controller = VoiceController(
+        broker: _QueueBroker(<RealtimeClientSecret>[
+          RealtimeClientSecret(
+            value: 'ephemeral',
+            expiresAt: now.add(const Duration(minutes: 5)),
+          ),
+        ]),
+        transport: transport,
+        store: store,
+        clock: () => now,
+      );
+      controller.handleEvent(<String, Object?>{
+        'type': 'conversation.item.input_audio_transcription.updated',
+        'sequence': 1,
+        'transcript': 'Não persista automaticamente',
+      });
+      controller.handleEvent(<String, Object?>{
+        'type': 'response.output_audio.delta',
+        'sequence': 2,
+        'delta': 'cGNt',
+      });
 
-    await controller.discard();
+      await controller.discard();
 
-    expect(controller.state.inputTranscript, isEmpty);
-    expect(controller.state.outputTranscript, isEmpty);
-    expect(controller.state.audioChunks, isEmpty);
-    expect(store.saved, isEmpty);
-    expect(
-      transport.sentEvents,
-      contains(<String, Object?>{'type': 'input_audio_buffer.clear'}),
-    );
-  });
+      expect(controller.state.inputTranscript, isEmpty);
+      expect(controller.state.outputTranscript, isEmpty);
+      expect(controller.state.audioChunks, isEmpty);
+      expect(store.saved, isEmpty);
+      expect(
+        transport.sentEvents,
+        contains(<String, Object?>{'type': 'input_audio_buffer.clear'}),
+      );
+    },
+  );
 
   test('save persists transcripts only after explicit user action', () async {
     final store = _RecordingStore();
