@@ -90,37 +90,41 @@ void main() {
       expect(controller.presentation.assetPath, endsWith('motion-poster.webp'));
       expect(controller.presentation.shouldPlayVideo, isFalse);
 
-      controller.updateSettings(
-        controller.settings.copyWith(dimming: 0.05),
+      controller.updateSettings(controller.settings.copyWith(dimming: 0.05));
+      expect(
+        controller.presentation.contrastScrimOpacity,
+        greaterThanOrEqualTo(0.4),
       );
-      expect(controller.presentation.contrastScrimOpacity, greaterThanOrEqualTo(0.4));
     });
 
-    test('activation failure rolls back to the previous active theme', () async {
-      final store = _RecordingThemeStore();
-      final controller = ThemeController(store: store);
-      const original = ThemeAssetCandidate(
-        id: 'original',
-        localPath: '/themes/original.webp',
-        mimeType: 'image/webp',
-        kind: ThemeAssetKind.image,
-      );
-      const replacement = ThemeAssetCandidate(
-        id: 'replacement',
-        localPath: '/themes/replacement.webp',
-        mimeType: 'image/webp',
-        kind: ThemeAssetKind.image,
-      );
+    test(
+      'activation failure rolls back to the previous active theme',
+      () async {
+        final store = _RecordingThemeStore();
+        final controller = ThemeController(store: store);
+        const original = ThemeAssetCandidate(
+          id: 'original',
+          localPath: '/themes/original.webp',
+          mimeType: 'image/webp',
+          kind: ThemeAssetKind.image,
+        );
+        const replacement = ThemeAssetCandidate(
+          id: 'replacement',
+          localPath: '/themes/replacement.webp',
+          mimeType: 'image/webp',
+          kind: ThemeAssetKind.image,
+        );
 
-      await controller.selectThemeAsset(original);
-      expect(await controller.activateSelected(), isTrue);
-      store.failNextCommit = true;
-      await controller.selectThemeAsset(replacement);
+        await controller.selectThemeAsset(original);
+        expect(await controller.activateSelected(), isTrue);
+        store.failNextCommit = true;
+        await controller.selectThemeAsset(replacement);
 
-      expect(await controller.activateSelected(), isFalse);
-      expect(controller.activeAsset?.id, 'original');
-      expect(store.rollbackIds, <String?>['original']);
-    });
+        expect(await controller.activateSelected(), isFalse);
+        expect(controller.activeAsset?.id, 'original');
+        expect(store.rollbackIds, <String?>['original']);
+      },
+    );
   });
 }
 
