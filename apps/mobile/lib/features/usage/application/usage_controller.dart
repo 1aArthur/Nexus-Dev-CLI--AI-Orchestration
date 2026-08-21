@@ -124,10 +124,7 @@ final class UsageController {
   final Map<String, UsageLineItem> _recordsById = <String, UsageLineItem>{};
   String? nextCursor;
 
-  void reconcilePage(
-    Iterable<UsageLineItem> page, {
-    String? nextCursor,
-  }) {
+  void reconcilePage(Iterable<UsageLineItem> page, {String? nextCursor}) {
     for (final incoming in page) {
       final related = _recordsById.values
           .where(
@@ -151,9 +148,7 @@ final class UsageController {
     this.nextCursor = nextCursor;
   }
 
-  List<UsageLineItem> records([
-    UsageFilter filter = const UsageFilter(),
-  ]) {
+  List<UsageLineItem> records([UsageFilter filter = const UsageFilter()]) {
     final visible = _recordsById.values.where(filter.matches).toList();
     visible.sort((left, right) {
       final time = left.recordedAt.compareTo(right.recordedAt);
@@ -167,9 +162,8 @@ final class UsageController {
     (total, record) => total + record.costMicros,
   );
 
-  int? get hardBudgetRemainingMicros => budget == null
-      ? null
-      : budget!.limitMicros - totalCostMicros;
+  int? get hardBudgetRemainingMicros =>
+      budget == null ? null : budget!.limitMicros - totalCostMicros;
 
   bool get hardBudgetExceeded => (hardBudgetRemainingMicros ?? 0) < 0;
 

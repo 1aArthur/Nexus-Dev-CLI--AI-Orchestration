@@ -8,7 +8,10 @@ import '../application/provider_controller.dart';
 import '../domain/reasoning_profile.dart';
 
 class ProvidersScreen extends StatelessWidget {
-  const ProvidersScreen({this.capabilities = const <ModelCapabilityDto>[], super.key});
+  const ProvidersScreen({
+    this.capabilities = const <ModelCapabilityDto>[],
+    super.key,
+  });
 
   final List<ModelCapabilityDto> capabilities;
 
@@ -32,7 +35,9 @@ class ProvidersScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: NexusSpacing.x2),
-        const Text('HTTPS is mandatory. URL credentials and local/private literal hosts are rejected.'),
+        const Text(
+          'HTTPS is mandatory. URL credentials and local/private literal hosts are rejected.',
+        ),
         const SizedBox(height: NexusSpacing.x1),
         Text(endpointPolicy.gatewayEnforcementNotice),
         const SizedBox(height: NexusSpacing.x6),
@@ -63,9 +68,15 @@ class ProvidersScreen extends StatelessWidget {
     SizedBox(height: NexusSpacing.x2),
     _ProviderCard(label: 'xAI', mode: 'Native'),
     SizedBox(height: NexusSpacing.x2),
-    _ProviderCard(label: 'OpenAI-compatible', mode: 'HTTPS + gateway SSRF policy'),
+    _ProviderCard(
+      label: 'OpenAI-compatible',
+      mode: 'HTTPS + gateway SSRF policy',
+    ),
     SizedBox(height: NexusSpacing.x2),
-    _ProviderCard(label: 'Anthropic-compatible', mode: 'HTTPS + gateway SSRF policy'),
+    _ProviderCard(
+      label: 'Anthropic-compatible',
+      mode: 'HTTPS + gateway SSRF policy',
+    ),
   ];
 
   Widget _capabilityCard(ModelCapabilityDto capability) {

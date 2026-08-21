@@ -41,7 +41,10 @@ void main() {
     final choices = const ReasoningResolver().choicesFor(capability);
 
     expect(choices, hasLength(5));
-    expect(choices.singleWhere((choice) => choice.profile.isAuto).enabled, true);
+    expect(
+      choices.singleWhere((choice) => choice.profile.isAuto).enabled,
+      true,
+    );
     expect(
       choices
           .singleWhere((choice) => choice.profile == ReasoningProfile.deep)
@@ -67,12 +70,19 @@ void main() {
   test('compatible endpoint policy fails closed before server validation', () {
     const policy = ProviderEndpointPolicy();
 
-    expect(policy.validate(Uri.parse('https://api.example.com/v1')).allowed, true);
+    expect(
+      policy.validate(Uri.parse('https://api.example.com/v1')).allowed,
+      true,
+    );
     for (final endpoint in <String>[
       'http://api.example.com/v1',
       'https://localhost/v1',
       'https://127.0.0.1/v1',
+      'https://2130706433/v1',
+      'https://999.1.1.1/v1',
       'https://10.20.30.40/v1',
+      'https://[::1]/v1',
+      'https://[fd00::1]/v1',
       'https://user:pass@api.example.com/v1',
       'https://api.example.com/v1#fragment',
     ]) {

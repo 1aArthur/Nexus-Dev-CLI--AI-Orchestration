@@ -24,6 +24,8 @@ jobs:
         run: make workflow-policy-test
       - name: Verify package manifest policies
         run: make package-schema-test
+      - name: Verify Task 9 security boundaries
+        run: make task9-security-test
 
   flutter-contract:
     runs-on: ubuntu-latest

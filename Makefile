@@ -1,4 +1,4 @@
-.PHONY: bootstrap format format-check test flutter-test rust-test schema-test package-schema-test schema-generate workflow-policy-test clean
+.PHONY: bootstrap format format-check test flutter-test rust-test schema-test package-schema-test schema-generate workflow-policy-test task9-security-test clean
 
 bootstrap:
 	cd apps/mobile && flutter pub get
@@ -37,6 +37,9 @@ schema-generate:
 
 workflow-policy-test:
 	./tests/contract/release_workflow_policy.sh
+
+task9-security-test:
+	bash ./tests/security/task9_security_policy.sh
 
 clean:
 	cd apps/mobile && flutter clean

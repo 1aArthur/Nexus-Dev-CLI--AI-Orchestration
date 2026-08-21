@@ -20,7 +20,10 @@ class CreditsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Credits center', style: Theme.of(context).textTheme.headlineLarge),
+          Text(
+            'Credits center',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
           const SizedBox(height: NexusSpacing.x2),
           const Text(
             'Filters · Provider · Model · Project · Mission · Agent · Target',
@@ -82,12 +85,18 @@ class CreditsScreen extends StatelessWidget {
             Text('${record.provider} · ${record.exactModelId}'),
             Text(_money(record.costMicros, record.currency)),
             const SizedBox(height: NexusSpacing.x2),
-            Text('Tokens in/out · ${record.inputTokens}/${record.outputTokens}'),
+            Text(
+              'Tokens in/out · ${record.inputTokens}/${record.outputTokens}',
+            ),
             Text('Reasoning · ${record.reasoningTokens}'),
             Text('Cache read · ${record.cachedInputTokens}'),
-            Text('Audio in/out · ${record.audioInputUnits}/${record.audioOutputUnits}'),
+            Text(
+              'Audio in/out · ${record.audioInputUnits}/${record.audioOutputUnits}',
+            ),
             Text('Media/tool units · ${record.mediaUnits}/${record.toolUnits}'),
-            Text('Latency · ${record.latencyMs} ms · Failure · ${record.failed ? 'Yes' : 'No'}'),
+            Text(
+              'Latency · ${record.latencyMs} ms · Failure · ${record.failed ? 'Yes' : 'No'}',
+            ),
             Text(
               'Catalog · ${record.pricingCatalogVersion} · Effective ${record.priceEffectiveAt.toUtc().toIso8601String()}',
             ),

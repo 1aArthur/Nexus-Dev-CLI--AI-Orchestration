@@ -52,41 +52,41 @@ final class ReasoningResolver {
   const ReasoningResolver();
 
   List<ReasoningChoice> choicesFor(ModelCapabilityDto capability) {
-    final expensiveLevels = switch (
-      capability.extensions['expensiveReasoningLevels']
-    ) {
-      final List<Object?> values => values.whereType<String>().toSet(),
-      _ => const <String>{},
-    };
+    final expensiveLevels =
+        switch (capability.extensions['expensiveReasoningLevels']) {
+          final List<Object?> values => values.whereType<String>().toSet(),
+          _ => const <String>{},
+        };
 
-    return ReasoningProfile.values.map((profile) {
-      final level = profile.universalLevel;
-      if (level == null) {
-        return ReasoningChoice(
-          profile: profile,
-          enabled: true,
-          requiresCostWarning: false,
-          providerParameters: const <String, Object?>{},
-        );
-      }
+    return ReasoningProfile.values
+        .map((profile) {
+          final level = profile.universalLevel;
+          if (level == null) {
+            return ReasoningChoice(
+              profile: profile,
+              enabled: true,
+              requiresCostWarning: false,
+              providerParameters: const <String, Object?>{},
+            );
+          }
 
-      final supported = capability.reasoning.supportedUniversalLevels.contains(
-        level,
-      );
-      final parameters = capability.reasoning.providerParameters[level];
-      final enabled = supported && parameters != null;
-      return ReasoningChoice(
-        profile: profile,
-        enabled: enabled,
-        requiresCostWarning: expensiveLevels.contains(profile.wireName),
-        providerParameters: enabled
-            ? Map<String, Object?>.from(parameters)
-            : const <String, Object?>{},
-        disabledReason: enabled
-            ? null
-            : 'Unsupported by ${capability.exactModelId}; policy '
-                  '${capability.reasoning.unsupportedPolicy.name}.',
-      );
-    }).toList(growable: false);
+          final supported = capability.reasoning.supportedUniversalLevels
+              .contains(level);
+          final parameters = capability.reasoning.providerParameters[level];
+          final enabled = supported && parameters != null;
+          return ReasoningChoice(
+            profile: profile,
+            enabled: enabled,
+            requiresCostWarning: expensiveLevels.contains(profile.wireName),
+            providerParameters: enabled
+                ? Map<String, Object?>.from(parameters)
+                : const <String, Object?>{},
+            disabledReason: enabled
+                ? null
+                : 'Unsupported by ${capability.exactModelId}; policy '
+                      '${capability.reasoning.unsupportedPolicy.name}.',
+          );
+        })
+        .toList(growable: false);
   }
 }

@@ -4,7 +4,10 @@ final class EndpointValidation {
   const EndpointValidation._({required this.allowed, required this.reason});
 
   const EndpointValidation.allowed()
-    : this._(allowed: true, reason: 'HTTPS endpoint accepted for gateway review.');
+    : this._(
+        allowed: true,
+        reason: 'HTTPS endpoint accepted for gateway review.',
+      );
 
   const EndpointValidation.rejected(String reason)
     : this._(allowed: false, reason: reason);
@@ -55,10 +58,13 @@ final class ProviderEndpointPolicy {
       return true;
     }
 
+    final numericCandidate = RegExp(r'^[0-9.]+$').hasMatch(host);
     final octets = host.split('.').map(int.tryParse).toList(growable: false);
+    if (numericCandidate && octets.length != 4) return true;
     if (octets.length != 4 || octets.any((octet) => octet == null)) {
       return false;
     }
+    if (octets.any((octet) => octet! < 0 || octet > 255)) return true;
     final first = octets[0]!;
     final second = octets[1]!;
     return first == 0 ||

@@ -5,11 +5,12 @@ import 'package:nexus_mobile/features/usage/domain/usage.dart';
 void main() {
   // Catches pagination that double-charges an estimate after the provider's
   // authoritative record arrives, or rewrites old catalog provenance.
-  test('paginated provider report supersedes estimate without history drift', () {
-    final controller = UsageController();
+  test(
+    'paginated provider report supersedes estimate without history drift',
+    () {
+      final controller = UsageController();
 
-    controller.reconcilePage(
-      <UsageLineItem>[
+      controller.reconcilePage(<UsageLineItem>[
         _record(
           id: 'estimate',
           source: UsageSource.estimated,
@@ -23,33 +24,30 @@ void main() {
           catalog: 'catalog-2026-06',
           costMicros: 500_000,
         ),
-      ],
-      nextCursor: 'page-2',
-    );
-    expect(controller.nextCursor, 'page-2');
+      ], nextCursor: 'page-2');
+      expect(controller.nextCursor, 'page-2');
 
-    controller.reconcilePage(
-      <UsageLineItem>[
+      controller.reconcilePage(<UsageLineItem>[
         _record(
           id: 'reported',
           source: UsageSource.providerReported,
           catalog: 'catalog-2026-08',
           costMicros: 1_100_000,
         ),
-      ],
-    );
+      ]);
 
-    expect(controller.records().map((record) => record.id), <String>[
-      'historical',
-      'reported',
-    ]);
-    expect(
-      controller.records().first.pricingCatalogVersion,
-      'catalog-2026-06',
-    );
-    expect(controller.totalCostMicros, 1_600_000);
-    expect(controller.nextCursor, isNull);
-  });
+      expect(controller.records().map((record) => record.id), <String>[
+        'historical',
+        'reported',
+      ]);
+      expect(
+        controller.records().first.pricingCatalogVersion,
+        'catalog-2026-06',
+      );
+      expect(controller.totalCostMicros, 1_600_000);
+      expect(controller.nextCursor, isNull);
+    },
+  );
 }
 
 UsageLineItem _record({
