@@ -78,7 +78,9 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _controller.updateEnvironment(appForeground: state == AppLifecycleState.resumed);
+    _controller.updateEnvironment(
+      appForeground: state == AppLifecycleState.resumed,
+    );
   }
 
   @override
@@ -150,17 +152,15 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen>
               label: 'Focal point X',
               valueLabel: '${(settings.focalX * 100).round()}%',
               value: settings.focalX,
-              onChanged: (value) => _controller.updateSettings(
-                settings.copyWith(focalX: value),
-              ),
+              onChanged: (value) =>
+                  _controller.updateSettings(settings.copyWith(focalX: value)),
             ),
             _LabeledSlider(
               label: 'Focal point Y',
               valueLabel: '${(settings.focalY * 100).round()}%',
               value: settings.focalY,
-              onChanged: (value) => _controller.updateSettings(
-                settings.copyWith(focalY: value),
-              ),
+              onChanged: (value) =>
+                  _controller.updateSettings(settings.copyWith(focalY: value)),
             ),
           ],
         ),
@@ -186,18 +186,16 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen>
               value: settings.dimming,
               min: 0,
               max: 0.85,
-              onChanged: (value) => _controller.updateSettings(
-                settings.copyWith(dimming: value),
-              ),
+              onChanged: (value) =>
+                  _controller.updateSettings(settings.copyWith(dimming: value)),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Loop video'),
               subtitle: const Text('Playback still pauses outside the app.'),
               value: settings.loop,
-              onChanged: (value) => _controller.updateSettings(
-                settings.copyWith(loop: value),
-              ),
+              onChanged: (value) =>
+                  _controller.updateSettings(settings.copyWith(loop: value)),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,

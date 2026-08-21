@@ -94,7 +94,10 @@ class _PetCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(pet.name, style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    pet.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: NexusSpacing.x1),
                   Text('${pet.license} · ${pet.signatureLabel}'),
                   const SizedBox(height: NexusSpacing.x1),
@@ -131,7 +134,9 @@ List<PackageDescriptor> get _defaultPets => <PackageDescriptor>[
     license: 'Apache-2.0',
     signatureStatus: PackageSignatureStatus.verified,
     permissions: const <String>[],
-    provenance: Uri.parse('https://github.com/1aArthur/Nexus-Dev-CLI--AI-Orchestration'),
+    provenance: Uri.parse(
+      'https://github.com/1aArthur/Nexus-Dev-CLI--AI-Orchestration',
+    ),
     schemaValidated: true,
     archiveValidated: true,
     summary: 'Original Nexus pet.',

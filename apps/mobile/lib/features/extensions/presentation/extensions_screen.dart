@@ -265,7 +265,9 @@ List<PackageDescriptor> get _defaultPackages => <PackageDescriptor>[
     license: 'Apache-2.0',
     signatureStatus: PackageSignatureStatus.verified,
     permissions: const <String>['repository:read', 'security:scan'],
-    provenance: Uri.parse('https://github.com/1aArthur/Nexus-Dev-CLI--AI-Orchestration'),
+    provenance: Uri.parse(
+      'https://github.com/1aArthur/Nexus-Dev-CLI--AI-Orchestration',
+    ),
     schemaValidated: true,
     archiveValidated: true,
     summary: 'Deterministic checks with explicit tool permissions.',
@@ -278,7 +280,9 @@ List<PackageDescriptor> get _defaultPackages => <PackageDescriptor>[
     license: 'Apache-2.0',
     signatureStatus: PackageSignatureStatus.verified,
     permissions: const <String>['artifact:read'],
-    provenance: Uri.parse('https://github.com/1aArthur/Nexus-Dev-CLI--AI-Orchestration'),
+    provenance: Uri.parse(
+      'https://github.com/1aArthur/Nexus-Dev-CLI--AI-Orchestration',
+    ),
     schemaValidated: true,
     archiveValidated: true,
     hasWasmComponent: true,
