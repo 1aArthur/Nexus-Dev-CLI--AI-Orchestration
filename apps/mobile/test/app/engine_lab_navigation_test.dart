@@ -20,7 +20,12 @@ void main() {
     expect(find.byKey(const Key('engine-lab')), findsOneWidget);
     expect(find.text('System WebView'), findsOneWidget);
     expect(find.text('Servo'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Ultralight'), 240);
     expect(find.text('Ultralight'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Lynx'), 240);
+
     expect(find.text('Lynx'), findsOneWidget);
     expect(find.byType(FeaturePlaceholderScreen), findsNothing);
   });
