@@ -78,12 +78,12 @@ class _VoiceScreenState extends State<VoiceScreen> {
               ),
             ),
             OutlinedButton.icon(
-              onPressed: controller == null ? null : controller.pause,
+              onPressed: controller?.pause,
               icon: const Icon(Icons.pause_outlined),
               label: const Text('Pause'),
             ),
             OutlinedButton.icon(
-              onPressed: controller == null ? null : controller.discard,
+              onPressed: controller?.discard,
               icon: const Icon(Icons.delete_outline),
               label: const Text('Discard memory'),
             ),
