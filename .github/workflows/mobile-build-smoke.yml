@@ -1,0 +1,214 @@
+name: Mobile release packages
+
+on:
+  push:
+    branches:
+      - feat/fullstack-d2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-ephemeral-signing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+      - name: Build and stage signed Android packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          keystore="$RUNNER_TEMP/ci-smoke.jks"
+          dist="$PWD/dist/android"
+          cleanup() {
+            rm -f "$keystore" android/key.properties
+          }
+          trap cleanup EXIT
+          flutter create --platforms=android --org dev.nexus --project-name nexus_mobile .
+          cp ../../tool/templates/android_app_build.gradle.kts android/app/build.gradle.kts
+          keytool -genkeypair -noprompt \
+            -keystore "$keystore" \
+            -storepass nexus-ci-only \
+            -keypass nexus-ci-only \
+            -alias ci-smoke \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 1 \
+            -dname "CN=Nexus CI disposable identity"
+          {
+            printf 'storeFile=%s\n' "$keystore"
+            printf 'storePassword=nexus-ci-only\n'
+            printf 'keyAlias=ci-smoke\n'
+            printf 'keyPassword=nexus-ci-only\n'
+          } > android/key.properties
+          flutter pub get
+          flutter build appbundle --release
+          flutter build apk --release
+          jarsigner -verify -certs build/app/outputs/bundle/release/app-release.aab
+          apksigner_path="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner -print | sort -V | tail -n 1)"
+          test -x "$apksigner_path"
+          export PATH="$(dirname "$apksigner_path"):$PATH"
+          apksigner verify --verbose --print-certs \
+            build/app/outputs/flutter-apk/app-release.apk
+          mkdir -p "$dist"
+          short_sha="${GITHUB_SHA:0:12}"
+          cp build/app/outputs/bundle/release/app-release.aab \
+            "$dist/Nexus-${short_sha}-release.aab"
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            "$dist/Nexus-${short_sha}-release.apk"
+          {
+            printf 'commit=%s\n' "$GITHUB_SHA"
+            printf 'branch=%s\n' "$GITHUB_REF_NAME"
+            printf 'flutter=3.47.1\n'
+            printf 'signing=disposable-ci-identity-not-for-store-publishing\n'
+          } > "$dist/BUILD-INFO.txt"
+          (
+            cd "$dist"
+            sha256sum ./*.aab ./*.apk BUILD-INFO.txt > SHA256SUMS-android.txt
+          )
+
+      - name: Upload signed Android release packages
+        id: upload_android
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: nexus-android-release-${{ github.sha }}
+          path: apps/mobile/dist/android/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Add Android package link to summary
+        shell: bash
+        env:
+          ARTIFACT_URL: ${{ steps.upload_android.outputs.artifact-url }}
+        run: |
+          printf '### Android release packages\n\n[Download APK, AAB and checksums](%s)\n' \
+            "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  ios-no-codesign:
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+      - name: Compile release-mode iOS application without signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          dist="$PWD/dist/ios"
+          flutter create --platforms=ios --org dev.nexus --project-name nexus_mobile .
+          flutter pub get
+          flutter build ios --release --no-codesign
+          mkdir -p "$dist"
+          short_sha="${GITHUB_SHA:0:12}"
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/ios/iphoneos/Runner.app \
+            "$dist/Nexus-${short_sha}-ios-unsigned.zip"
+          {
+            printf 'commit=%s\n' "$GITHUB_SHA"
+            printf 'branch=%s\n' "$GITHUB_REF_NAME"
+            printf 'flutter=3.47.1\n'
+            printf 'signing=unsigned-ci-package-requires-apple-distribution-signing\n'
+          } > "$dist/BUILD-INFO.txt"
+          (
+            cd "$dist"
+            shasum -a 256 ./*.zip BUILD-INFO.txt > SHA256SUMS-ios.txt
+          )
+
+      - name: Upload unsigned iOS release package
+        id: upload_ios
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: nexus-ios-unsigned-release-${{ github.sha }}
+          path: apps/mobile/dist/ios/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Add iOS package link to summary
+        shell: bash
+        env:
+          ARTIFACT_URL: ${{ steps.upload_ios.outputs.artifact-url }}
+        run: |
+          printf '### iOS release package\n\n[Download unsigned app package and checksums](%s)\n' \
+            "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  publish-branch-prerelease:
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release:')
+    needs: android-ephemeral-signing
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download verified Android packages from this run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "$GITHUB_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "nexus-android-release-$GITHUB_SHA" \
+            --dir dist/android
+
+      - name: Recheck checksums before publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find dist/android -maxdepth 1 -name '*.apk' -type f | wc -l)" -eq 1
+          test "$(find dist/android -maxdepth 1 -name '*.aab' -type f | wc -l)" -eq 1
+          (cd dist/android && sha256sum -c SHA256SUMS-android.txt)
+
+      - name: Publish repository-visible Task 9 prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          short_sha="${GITHUB_SHA:0:12}"
+          tag="task9-$short_sha"
+          notes="$RUNNER_TEMP/task9-release-notes.md"
+          {
+            printf 'Task 9 provider controls, reasoning profiles, Credits center, and security gates.\n\n'
+            printf 'Android APK and AAB are signed with a disposable CI identity for verification/testing.\n'
+            printf 'They are not signed with the protected Play Store production upload key.\n\n'
+            printf 'Commit: `%s`\n' "$GITHUB_SHA"
+          } > "$notes"
+          gh release create "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Nexus Task 9 · $short_sha" \
+            --notes-file "$notes" \
+            --prerelease
+          gh release upload "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            dist/android/*.apk \
+            dist/android/*.aab \
+            dist/android/SHA256SUMS-android.txt \
+            dist/android/BUILD-INFO.txt

@@ -1,0 +1,89 @@
+name: Bootstrap contract
+
+on:
+  push:
+    branches:
+      - feat/fullstack-d2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bootstrap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Verify guarded release workflows
+        run: make workflow-policy-test
+      - name: Verify package manifest policies
+        run: make package-schema-test
+      - name: Verify Task 9 security boundaries
+        run: make task9-security-test
+
+  flutter-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          channel: stable
+          cache: true
+      - name: Resolve packages
+        run: flutter pub get
+      - name: Check Dart formatting
+        run: |
+          dart format lib test
+          git diff --exit-code -- lib test
+      - name: Analyze
+        run: flutter analyze
+      - name: Run Flutter contracts
+        run: flutter test
+
+  rust-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Verify generated contracts
+        run: ./packages/api_schema/generate.sh
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.89.0 --profile minimal --component rustfmt
+      - name: Select pinned Rust
+        run: rustup override set 1.89.0
+      - name: Check Rust formatting
+        run: cargo fmt --all --check
+      - name: Test Rust workspace
+        run: cargo test --workspace --locked
+
+  elixir-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: services/orchestrator
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Install pinned BEAM
+        uses: erlef/setup-beam@8736e9244717f9207464c14c6051b71d22253f60
+        with:
+          otp-version: 27.3.4.2
+          elixir-version: 1.18.4
+      - name: Check Elixir formatting
+        run: mix format --check-formatted
+      - name: Test Elixir workspace
+        run: mix test

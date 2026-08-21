@@ -1,0 +1,99 @@
+name: Signed Android release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-android-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  signed-android:
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: release-android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout protected tag
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+        with:
+          fetch-depth: 0
+
+      - name: Validate signing inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          test -n "$ANDROID_STORE_PASSWORD"
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+
+      - name: Build signed AAB and APK
+        working-directory: apps/mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          keystore="$RUNNER_TEMP/nexus-release.jks"
+          cleanup() {
+            rm -f "$keystore" android/key.properties
+          }
+          trap cleanup EXIT
+          flutter create --platforms=android --org dev.nexus --project-name nexus_mobile .
+          cp ../../tool/templates/android_app_build.gradle.kts android/app/build.gradle.kts
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          chmod 600 "$keystore"
+          {
+            printf 'storeFile=%s\n' "$keystore"
+            printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD"
+            printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
+            printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+          chmod 600 android/key.properties
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib test
+          flutter analyze
+          flutter test
+          flutter build appbundle --release --obfuscate --split-debug-info="$RUNNER_TEMP/android-symbols"
+          flutter build apk --release --split-per-abi --obfuscate --split-debug-info="$RUNNER_TEMP/android-symbols"
+          jarsigner -verify -certs build/app/outputs/bundle/release/app-release.aab
+          apksigner_path="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner -print | sort -V | tail -n 1)"
+          test -x "$apksigner_path"
+          export PATH="$(dirname "$apksigner_path"):$PATH"
+          for apk in build/app/outputs/flutter-apk/*-release.apk; do
+            apksigner verify --verbose --print-certs "$apk"
+          done
+          sha256sum \
+            build/app/outputs/bundle/release/app-release.aab \
+            build/app/outputs/flutter-apk/*-release.apk \
+            > build/app/outputs/SHA256SUMS-android.txt
+
+      - name: Publish signed Android assets
+        working-directory: apps/mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          gh release view "$tag" >/dev/null 2>&1 || \
+            gh release create "$tag" --verify-tag --generate-notes
+          gh release upload "$tag" --clobber \
+            build/app/outputs/bundle/release/app-release.aab \
+            build/app/outputs/flutter-apk/*-release.apk \
+            build/app/outputs/SHA256SUMS-android.txt

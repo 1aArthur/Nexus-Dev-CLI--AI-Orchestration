@@ -1,0 +1,517 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: Nexus Gateway API
+  version: 0.1.0
+  description: Secure control plane for missions, agents, execution, AI usage, and realtime sessions.
+servers:
+  - url: https://api.nexus.invalid
+    description: Placeholder replaced by deployment configuration.
+security:
+  - bearerAuth: []
+tags:
+  - name: Missions
+  - name: Execution
+  - name: Models
+  - name: Usage
+  - name: Realtime
+paths:
+  /v1/missions:
+    get:
+      tags: [Missions]
+      operationId: listMissions
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Cursor-paginated mission list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionPageDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+    post:
+      tags: [Missions]
+      operationId: createMission
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMissionRequest'
+      responses:
+        '201':
+          description: Mission accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/missions/{missionId}:
+    get:
+      tags: [Missions]
+      operationId: getMission
+      parameters:
+        - $ref: '#/components/parameters/MissionId'
+      responses:
+        '200':
+          description: Mission state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/missions/{missionId}/cancel:
+    post:
+      tags: [Missions]
+      operationId: cancelMission
+      parameters:
+        - $ref: '#/components/parameters/MissionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          description: Cancellation requested.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/missions/{missionId}/events:
+    get:
+      tags: [Missions]
+      operationId: listMissionEvents
+      parameters:
+        - $ref: '#/components/parameters/MissionId'
+        - $ref: '#/components/parameters/Cursor'
+        - name: afterSequence
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+      responses:
+        '200':
+          description: Ordered durable mission events.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionEventPageDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/execution-targets:
+    get:
+      tags: [Execution]
+      operationId: listExecutionTargets
+      responses:
+        '200':
+          description: Execution targets visible to the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExecutionTargetDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/model-capabilities:
+    get:
+      tags: [Models]
+      operationId: listModelCapabilities
+      responses:
+        '200':
+          description: Exact-model capability records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelCapabilityDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/usage:
+    get:
+      tags: [Usage]
+      operationId: listUsage
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - name: missionId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Usage ledger records with cost provenance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsagePageDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+  /v1/realtime/xai/session:
+    post:
+      tags: [Realtime]
+      operationId: createXaiRealtimeSession
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRealtimeSessionRequest'
+      responses:
+        '201':
+          description: Short-lived client session; the server-held API key is never returned.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: Always `no-store`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealtimeSessionDto'
+        default:
+          $ref: '#/components/responses/ApiError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    MissionId:
+      name: missionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 1024
+      description: Opaque cursor; clients must not parse or synthesize it.
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+        pattern: '^[A-Za-z0-9._~-]+$'
+  responses:
+    ApiError:
+      description: Structured error with a support-safe trace identifier.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorDto'
+  schemas:
+    MissionStatus:
+      type: string
+      enum: [draft, queued, running, awaiting_approval, succeeded, failed, cancelled]
+    MissionDto:
+      type: object
+      additionalProperties: false
+      required: [id, ownerId, title, status, createdAt, updatedAt, lastEventSequence]
+      properties:
+        id:
+          type: string
+          format: uuid
+        ownerId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        status:
+          $ref: '#/components/schemas/MissionStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        lastEventSequence:
+          type: integer
+          format: int64
+          minimum: 0
+        budgetLimitMicros:
+          type: integer
+          format: int64
+          minimum: 0
+        concurrencyLimit:
+          type: integer
+          minimum: 1
+          maximum: 256
+    MissionEventDto:
+      type: object
+      additionalProperties: false
+      required: [eventId, missionId, sequence, traceId, type, occurredAt, payload]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        missionId:
+          type: string
+          format: uuid
+        sequence:
+          type: integer
+          format: int64
+          minimum: 1
+        traceId:
+          type: string
+          minLength: 16
+          maxLength: 64
+        type:
+          type: string
+          enum: [mission.created, mission.status_changed, agent.started, agent.completed, usage.recorded, terminal.output]
+        occurredAt:
+          type: string
+          format: date-time
+        payload:
+          type: object
+          additionalProperties: true
+    ExecutionTargetDto:
+      type: object
+      additionalProperties: false
+      required: [id, displayName, kind, status, capabilities, approvalMode]
+      properties:
+        id:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        kind:
+          type: string
+          enum: [device, github_actions, codespaces, ssh_worker]
+        status:
+          type: string
+          enum: [available, unavailable, requires_auth, disabled]
+        capabilities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum: [safe_native, read_repository, write_repository, network, terminal, long_running, secrets, gpu]
+        approvalMode:
+          type: string
+          enum: [always_ask, policy, never_for_safe_native]
+    UsageRecordDto:
+      type: object
+      additionalProperties: false
+      required: [id, missionId, provider, exactModelId, inputTokens, outputTokens, costMicros, currency, provenance, recordedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        missionId:
+          type: string
+          format: uuid
+        provider:
+          type: string
+        exactModelId:
+          type: string
+        inputTokens:
+          type: integer
+          format: int64
+          minimum: 0
+        outputTokens:
+          type: integer
+          format: int64
+          minimum: 0
+        cachedInputTokens:
+          type: integer
+          format: int64
+          minimum: 0
+        costMicros:
+          type: integer
+          format: int64
+          minimum: 0
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        provenance:
+          type: string
+          enum: [provider_reported, estimated, adjusted]
+        recordedAt:
+          type: string
+          format: date-time
+    ModelCapabilityDto:
+      type: object
+      additionalProperties: false
+      required: [exactModelId, provider, supportsStreaming, reasoning]
+      properties:
+        exactModelId:
+          type: string
+          minLength: 1
+        provider:
+          type: string
+          enum: [openai, anthropic, xai, openai_compatible, anthropic_compatible]
+        supportsStreaming:
+          type: boolean
+        contextWindowTokens:
+          type: integer
+          minimum: 1
+        reasoning:
+          type: object
+          additionalProperties: false
+          required: [supportedUniversalLevels, mappings, unsupportedPolicy]
+          properties:
+            supportedUniversalLevels:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+                enum: [fast, balanced, deep, max]
+            mappings:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties: false
+                required: [providerParameters]
+                properties:
+                  providerParameters:
+                    type: object
+                    additionalProperties: true
+            unsupportedPolicy:
+              type: string
+              enum: [reject, clamp, omit]
+        extensions:
+          type: object
+          additionalProperties: true
+    ApiErrorDto:
+      type: object
+      additionalProperties: false
+      required: [code, message, traceId]
+      properties:
+        code:
+          type: string
+          pattern: '^[A-Z][A-Z0-9_]{2,63}$'
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+        traceId:
+          type: string
+          minLength: 16
+          maxLength: 64
+        retryable:
+          type: boolean
+          default: false
+        details:
+          type: object
+          additionalProperties: true
+    CreateMissionRequest:
+      type: object
+      additionalProperties: false
+      required: [title, executionTargetId, concurrencyLimit]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        executionTargetId:
+          type: string
+          format: uuid
+        budgetLimitMicros:
+          type: integer
+          format: int64
+          minimum: 0
+        concurrencyLimit:
+          type: integer
+          minimum: 1
+          maximum: 256
+    CreateRealtimeSessionRequest:
+      type: object
+      additionalProperties: false
+      required: [agentId, modalities]
+      properties:
+        agentId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        modalities:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [audio, text]
+    RealtimeSessionDto:
+      type: object
+      additionalProperties: false
+      required: [sessionId, clientSecret, expiresAt, websocketUrl, agentId]
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        clientSecret:
+          type: string
+          minLength: 32
+          writeOnly: true
+        expiresAt:
+          type: string
+          format: date-time
+        websocketUrl:
+          type: string
+          format: uri
+        agentId:
+          type: string
+    MissionPageDto:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissionDto'
+        nextCursor:
+          type: string
+          minLength: 16
+          maxLength: 1024
+    MissionEventPageDto:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissionEventDto'
+        nextCursor:
+          type: string
+          minLength: 16
+          maxLength: 1024
+    UsagePageDto:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageRecordDto'
+        nextCursor:
+          type: string
+          minLength: 16
+          maxLength: 1024
