@@ -1,0 +1,83 @@
+name: Mobile release-mode smoke
+
+on:
+  push:
+    branches:
+      - feat/fullstack-d2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-ephemeral-signing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+      - name: Compile release AAB with disposable CI identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          keystore="$RUNNER_TEMP/ci-smoke.jks"
+          cleanup() {
+            rm -f "$keystore" android/key.properties
+          }
+          trap cleanup EXIT
+          flutter create --platforms=android --org dev.nexus --project-name nexus_mobile .
+          cp ../../tool/templates/android_app_build.gradle.kts android/app/build.gradle.kts
+          keytool -genkeypair -noprompt \
+            -keystore "$keystore" \
+            -storepass nexus-ci-only \
+            -keypass nexus-ci-only \
+            -alias ci-smoke \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 1 \
+            -dname "CN=Nexus CI disposable identity"
+          {
+            printf 'storeFile=%s\n' "$keystore"
+            printf 'storePassword=nexus-ci-only\n'
+            printf 'keyAlias=ci-smoke\n'
+            printf 'keyPassword=nexus-ci-only\n'
+          } > android/key.properties
+          flutter pub get
+          flutter build appbundle --release
+          jarsigner -verify -strict -certs build/app/outputs/bundle/release/app-release.aab
+
+  ios-no-codesign:
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: Install Flutter
+        uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+      - name: Compile release-mode iOS application without signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter create --platforms=ios --org dev.nexus --project-name nexus_mobile .
+          flutter pub get
+          flutter build ios --release --no-codesign
