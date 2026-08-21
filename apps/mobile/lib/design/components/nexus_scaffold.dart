@@ -202,10 +202,7 @@ class _CommandHeader extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          const NexusBrandMark(
-            key: Key('nexus-brand-header'),
-            size: 42,
-          ),
+          const NexusBrandMark(key: Key('nexus-brand-header'), size: 42),
           const SizedBox(width: NexusSpacing.x2),
           const Text(
             'NEXUS',
