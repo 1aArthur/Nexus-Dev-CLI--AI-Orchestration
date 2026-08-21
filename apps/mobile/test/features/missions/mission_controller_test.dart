@@ -32,7 +32,10 @@ void main() {
       ..setReasoning(UniversalReasoningLevel.deep);
 
     expect(controller.validate().isValid, isTrue);
-    expect(controller.state.costPreview.reservedMicros, lessThanOrEqualTo(900000));
+    expect(
+      controller.state.costPreview.reservedMicros,
+      lessThanOrEqualTo(900000),
+    );
     expect(controller.state.draft.concurrency, lessThanOrEqualTo(6));
   });
 
@@ -64,33 +67,36 @@ void main() {
     );
   });
 
-  test('submission is idempotent and terminal missions cannot resume', () async {
-    final gateway = InMemoryMissionGateway();
-    final controller = MissionController(
-      gateway: gateway,
-      modelCapabilities: const <MissionModelCapability>[capability],
-      idempotencyKeyFactory: () => 'fixed-key',
-    );
-    controller
-      ..setTitle('Ship release')
-      ..setExecutionTarget('github-actions')
-      ..selectModel('openai', 'gpt-5.4');
+  test(
+    'submission is idempotent and terminal missions cannot resume',
+    () async {
+      final gateway = InMemoryMissionGateway();
+      final controller = MissionController(
+        gateway: gateway,
+        modelCapabilities: const <MissionModelCapability>[capability],
+        idempotencyKeyFactory: () => 'fixed-key',
+      );
+      controller
+        ..setTitle('Ship release')
+        ..setExecutionTarget('github-actions')
+        ..selectModel('openai', 'gpt-5.4');
 
-    final first = await controller.submit();
-    final second = await controller.submit();
+      final first = await controller.submit();
+      final second = await controller.submit();
 
-    expect(second.id, first.id);
-    expect(gateway.submissionCount, 1);
-    controller.applyEvent(
-      MissionRuntimeEvent(
-        missionId: first.id,
-        sequence: 1,
-        type: MissionRuntimeEventType.succeeded,
-        occurredAt: DateTime.utc(2026, 8, 20),
-      ),
-    );
-    expect(() => controller.resume(), throwsStateError);
-  });
+      expect(second.id, first.id);
+      expect(gateway.submissionCount, 1);
+      controller.applyEvent(
+        MissionRuntimeEvent(
+          missionId: first.id,
+          sequence: 1,
+          type: MissionRuntimeEventType.succeeded,
+          occurredAt: DateTime.utc(2026, 8, 20),
+        ),
+      );
+      expect(() => controller.resume(), throwsStateError);
+    },
+  );
 
   test('detects event gaps and preserves explicit approval gates', () {
     final controller = MissionController(
