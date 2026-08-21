@@ -134,10 +134,7 @@ final class ExecutionController extends ChangeNotifier {
       lines: _state.lines,
       lastReceivedSequence: _state.lastReceivedSequence,
       lastAcknowledgedSequence: sequence
-          .clamp(
-            _state.lastAcknowledgedSequence,
-            _state.lastReceivedSequence,
-          )
+          .clamp(_state.lastAcknowledgedSequence, _state.lastReceivedSequence)
           .toInt(),
       isTerminal: _state.isTerminal,
     );

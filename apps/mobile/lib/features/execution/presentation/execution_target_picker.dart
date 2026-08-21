@@ -35,7 +35,10 @@ class ExecutionTargetPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Execution target', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Execution target',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: NexusSpacing.x2),
         ...choices.map(
           (choice) => Padding(

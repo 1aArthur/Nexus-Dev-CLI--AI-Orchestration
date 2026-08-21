@@ -33,7 +33,10 @@ class _TerminalScreenState extends State<TerminalScreen> {
     return ListView(
       padding: const EdgeInsets.all(NexusSpacing.x4),
       children: <Widget>[
-        Text('Execution console', style: Theme.of(context).textTheme.headlineSmall),
+        Text(
+          'Execution console',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
         const SizedBox(height: NexusSpacing.x2),
         const Text(
           'Controls are rendered only from the selected target capabilities.',
@@ -78,7 +81,10 @@ class _NativeOperations extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      Text('Bounded native tools', style: Theme.of(context).textTheme.titleMedium),
+      Text(
+        'Bounded native tools',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
       const SizedBox(height: NexusSpacing.x2),
       const Text('Arbitrary shell input is disabled on this device.'),
       const SizedBox(height: NexusSpacing.x3),
@@ -108,7 +114,10 @@ class _GitHubBatchForm extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      Text('GitHub Actions batch run', style: Theme.of(context).textTheme.titleMedium),
+      Text(
+        'GitHub Actions batch run',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
       const SizedBox(height: NexusSpacing.x2),
       const Text('Interactive prompts are not supported for this target.'),
       const SizedBox(height: NexusSpacing.x3),
@@ -120,9 +129,7 @@ class _GitHubBatchForm extends StatelessWidget {
         decoration: InputDecoration(labelText: 'Workflow file or ID'),
       ),
       const SizedBox(height: NexusSpacing.x3),
-      const TextField(
-        decoration: InputDecoration(labelText: 'Git ref'),
-      ),
+      const TextField(decoration: InputDecoration(labelText: 'Git ref')),
       const SizedBox(height: NexusSpacing.x3),
       Text(
         'Estimated reservation: '
@@ -153,7 +160,10 @@ class _InteractiveTerminal extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
-      Text('Remote interactive session', style: Theme.of(context).textTheme.titleMedium),
+      Text(
+        'Remote interactive session',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
       const SizedBox(height: NexusSpacing.x3),
       DropdownButtonFormField<TerminalShell>(
         initialValue: shell,
