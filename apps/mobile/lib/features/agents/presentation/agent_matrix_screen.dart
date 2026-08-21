@@ -88,7 +88,8 @@ class AgentMatrixScreen extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(NexusSpacing.x4),
       itemCount: agents.length,
-      separatorBuilder: (context, index) => const SizedBox(height: NexusSpacing.x3),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: NexusSpacing.x3),
       itemBuilder: (context, index) => _AgentCard(
         agent: agents[index],
         onCancel: onCancel,
@@ -124,8 +125,13 @@ class _AgentCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(agent.name, style: Theme.of(context).textTheme.titleMedium),
-                      Text('${agent.provider} · ${agent.exactModelId} · ${agent.reasoningLabel}'),
+                      Text(
+                        agent.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        '${agent.provider} · ${agent.exactModelId} · ${agent.reasoningLabel}',
+                      ),
                     ],
                   ),
                 ),
@@ -139,7 +145,10 @@ class _AgentCard extends StatelessWidget {
               spacing: NexusSpacing.x2,
               runSpacing: NexusSpacing.x2,
               children: <Widget>[
-                _Metric(label: '\$${(agent.costMicros / 1000000).toStringAsFixed(2)} reserved'),
+                _Metric(
+                  label:
+                      '\$${(agent.costMicros / 1000000).toStringAsFixed(2)} reserved',
+                ),
                 _Metric(label: '${agent.latencyMs} ms'),
                 _Metric(label: '${agent.artifactCount} artifacts'),
                 _Metric(label: '${agent.citationCount} citations'),
@@ -173,7 +182,9 @@ class _AgentCard extends StatelessWidget {
                   ),
                   const SizedBox(width: NexusSpacing.x2),
                   FilledButton(
-                    onPressed: onApprove == null ? null : () => onApprove!(agent.id),
+                    onPressed: onApprove == null
+                        ? null
+                        : () => onApprove!(agent.id),
                     child: const Text('Review'),
                   ),
                 ],
@@ -183,7 +194,9 @@ class _AgentCard extends StatelessWidget {
                   button: true,
                   child: IconButton.outlined(
                     tooltip: 'Cancel ${agent.name}',
-                    onPressed: onCancel == null ? null : () => onCancel!(agent.id),
+                    onPressed: onCancel == null
+                        ? null
+                        : () => onCancel!(agent.id),
                     icon: const Icon(Icons.stop_circle_outlined),
                   ),
                 ),
@@ -214,7 +227,10 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: NexusSpacing.x2, vertical: 6),
+    padding: const EdgeInsets.symmetric(
+      horizontal: NexusSpacing.x2,
+      vertical: 6,
+    ),
     decoration: BoxDecoration(
       border: Border.all(color: NexusColors.border),
       borderRadius: BorderRadius.circular(999),

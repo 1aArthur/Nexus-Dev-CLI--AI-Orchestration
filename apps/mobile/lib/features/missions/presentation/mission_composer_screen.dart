@@ -135,9 +135,8 @@ class _MissionComposerScreenState extends State<MissionComposerScreen> {
                     ),
                   )
                   .toList(growable: false),
-              selected: _controller.availableReasoningLevels.contains(
-                draft.reasoning,
-              )
+              selected:
+                  _controller.availableReasoningLevels.contains(draft.reasoning)
                   ? <UniversalReasoningLevel>{draft.reasoning}
                   : <UniversalReasoningLevel>{},
               emptySelectionAllowed: true,
@@ -230,16 +229,16 @@ class _MissionComposerScreenState extends State<MissionComposerScreen> {
     final validation = _controller.validate();
     if (!validation.isValid) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(validation.issues.join('\n'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(validation.issues.join('\n'))));
       return;
     }
     final mission = await _controller.submit();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Mission ${mission.id} queued')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Mission ${mission.id} queued')));
   }
 }
 

@@ -34,8 +34,7 @@ GoRouter createNexusRouter() {
                 routes: <RouteBase>[
                   GoRoute(
                     path: 'compose',
-                    builder: (context, state) =>
-                        const MissionComposerScreen(),
+                    builder: (context, state) => const MissionComposerScreen(),
                   ),
                 ],
               ),

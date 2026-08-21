@@ -185,10 +185,7 @@ final class MissionControllerState {
 }
 
 final class MissionSubmission {
-  const MissionSubmission({
-    required this.configuration,
-    required this.profile,
-  });
+  const MissionSubmission({required this.configuration, required this.profile});
 
   final MissionConfiguration configuration;
   final OrchestrationProfile profile;
@@ -233,19 +230,17 @@ final class InMemoryMissionGateway implements MissionGateway {
   }
 
   @override
-  Future<Mission> cancel(String missionId) async => _replaceStatus(
-    missionId,
-    MissionStatus.cancelled,
-  );
+  Future<Mission> cancel(String missionId) async =>
+      _replaceStatus(missionId, MissionStatus.cancelled);
 
   @override
-  Future<Mission> resume(String missionId) async => _replaceStatus(
-    missionId,
-    MissionStatus.running,
-  );
+  Future<Mission> resume(String missionId) async =>
+      _replaceStatus(missionId, MissionStatus.running);
 
   Mission _replaceStatus(String missionId, MissionStatus status) {
-    final entry = _submissions.entries.where((item) => item.value.id == missionId);
+    final entry = _submissions.entries.where(
+      (item) => item.value.id == missionId,
+    );
     if (entry.isEmpty) throw StateError('Unknown mission');
     final item = entry.first;
     final mission = item.value;
@@ -331,12 +326,9 @@ final class MissionController extends ChangeNotifier {
     ),
   );
 
-  void setBudgetMicros(int value) =>
-      _update(
-        _state.draft.copyWith(
-          budgetMicros: value.clamp(1000, 1000000000).toInt(),
-        ),
-      );
+  void setBudgetMicros(int value) => _update(
+    _state.draft.copyWith(budgetMicros: value.clamp(1000, 1000000000).toInt()),
+  );
 
   void setDeadline(DateTime value) =>
       _update(_state.draft.copyWith(deadline: value));
@@ -356,9 +348,10 @@ final class MissionController extends ChangeNotifier {
     if (capability.isNotEmpty &&
         !capability.first.supportedReasoning.contains(next.reasoning)) {
       next = next.copyWith(
-        reasoning: capability.first.supportedReasoning.contains(
-          UniversalReasoningLevel.balanced,
-        )
+        reasoning:
+            capability.first.supportedReasoning.contains(
+              UniversalReasoningLevel.balanced,
+            )
             ? UniversalReasoningLevel.balanced
             : capability.first.supportedReasoning.first,
       );
@@ -368,7 +361,9 @@ final class MissionController extends ChangeNotifier {
 
   void setReasoning(UniversalReasoningLevel value) {
     if (!availableReasoningLevels.contains(value)) {
-      throw StateError('Reasoning level is not supported by the selected model');
+      throw StateError(
+        'Reasoning level is not supported by the selected model',
+      );
     }
     _update(_state.draft.copyWith(reasoning: value));
   }
@@ -377,8 +372,10 @@ final class MissionController extends ChangeNotifier {
     final issues = <String>[];
     final draft = _state.draft;
     if (draft.title.trim().length < 3) issues.add('Mission title is required');
-    if (draft.executionTargetId.isEmpty) issues.add('Execution target is required');
-    if (_selectedCapability == null) issues.add('A supported exact model is required');
+    if (draft.executionTargetId.isEmpty)
+      issues.add('Execution target is required');
+    if (_selectedCapability == null)
+      issues.add('A supported exact model is required');
     if (draft.deadline != null && !draft.deadline!.isAfter(_now())) {
       issues.add('Deadline must be in the future');
     }
@@ -482,15 +479,17 @@ final class MissionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  MissionStatus? _statusForEvent(MissionRuntimeEventType type) => switch (type) {
-    MissionRuntimeEventType.queued => MissionStatus.queued,
-    MissionRuntimeEventType.running || MissionRuntimeEventType.resumed =>
-      MissionStatus.running,
-    MissionRuntimeEventType.approvalRequired => MissionStatus.awaitingApproval,
-    MissionRuntimeEventType.succeeded => MissionStatus.succeeded,
-    MissionRuntimeEventType.failed => MissionStatus.failed,
-    MissionRuntimeEventType.cancelled => MissionStatus.cancelled,
-  };
+  MissionStatus? _statusForEvent(MissionRuntimeEventType type) =>
+      switch (type) {
+        MissionRuntimeEventType.queued => MissionStatus.queued,
+        MissionRuntimeEventType.running ||
+        MissionRuntimeEventType.resumed => MissionStatus.running,
+        MissionRuntimeEventType.approvalRequired =>
+          MissionStatus.awaitingApproval,
+        MissionRuntimeEventType.succeeded => MissionStatus.succeeded,
+        MissionRuntimeEventType.failed => MissionStatus.failed,
+        MissionRuntimeEventType.cancelled => MissionStatus.cancelled,
+      };
 
   void _update(MissionConfiguration draft) {
     final estimated = draft.agentCount * 120000;
