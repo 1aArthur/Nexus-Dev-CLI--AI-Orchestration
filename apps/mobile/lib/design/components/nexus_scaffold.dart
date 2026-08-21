@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../tokens.dart';
+import 'nexus_brand_mark.dart';
 
 class NexusDestination {
   const NexusDestination({
@@ -143,7 +144,10 @@ class NexusScaffold extends StatelessWidget {
                     labelType: NavigationRailLabelType.all,
                     leading: const Padding(
                       padding: EdgeInsets.only(top: NexusSpacing.x4),
-                      child: Icon(Icons.graphic_eq, semanticLabel: 'Nexus'),
+                      child: NexusBrandMark(
+                        key: Key('nexus-brand-rail'),
+                        size: 40,
+                      ),
                     ),
                     destinations: primaryDestinations
                         .map(
@@ -198,6 +202,11 @@ class _CommandHeader extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
+          const NexusBrandMark(
+            key: Key('nexus-brand-header'),
+            size: 42,
+          ),
+          const SizedBox(width: NexusSpacing.x2),
           const Text(
             'NEXUS',
             style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 2),
