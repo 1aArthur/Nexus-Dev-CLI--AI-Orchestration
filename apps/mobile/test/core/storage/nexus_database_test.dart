@@ -16,7 +16,11 @@ void main() {
 
   test('cached mission reports freshness from the caller clock', () async {
     final cachedAt = DateTime.utc(2026, 8, 20, 12);
-    await database.cacheMission(_mission(), cachedAt: cachedAt, remoteVersion: 3);
+    await database.cacheMission(
+      _mission(),
+      cachedAt: cachedAt,
+      remoteVersion: 3,
+    );
 
     final fresh = await database.readMission(
       _mission().id,

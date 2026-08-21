@@ -2,7 +2,10 @@ import '../api/generated/contracts.dart';
 import '../../features/missions/domain/mission.dart';
 
 final class CachedMissionSnapshot {
-  const CachedMissionSnapshot({required this.remoteVersion, required this.isStale});
+  const CachedMissionSnapshot({
+    required this.remoteVersion,
+    required this.isStale,
+  });
 
   final int remoteVersion;
   final bool isStale;
