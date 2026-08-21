@@ -372,10 +372,12 @@ final class MissionController extends ChangeNotifier {
     final issues = <String>[];
     final draft = _state.draft;
     if (draft.title.trim().length < 3) issues.add('Mission title is required');
-    if (draft.executionTargetId.isEmpty)
+    if (draft.executionTargetId.isEmpty) {
       issues.add('Execution target is required');
-    if (_selectedCapability == null)
+    }
+    if (_selectedCapability == null) {
       issues.add('A supported exact model is required');
+    }
     if (draft.deadline != null && !draft.deadline!.isAfter(_now())) {
       issues.add('Deadline must be in the future');
     }
