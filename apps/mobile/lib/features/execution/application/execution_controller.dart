@@ -26,14 +26,42 @@ final class ExecutionTargetPolicy {
     ExecutionTarget target, {
     Set<TerminalShell> advertisedShells = const <TerminalShell>{},
     int estimatedCostMicros = 0,
-  }) => const ExecutionTargetPolicy(
-    acceptsArbitraryCommands: false,
-    supportsBatchDispatch: false,
-    nativeOperations: <SafeNativeOperation>{},
-    shells: <TerminalShell>{},
-    requiresExplicitConfirmation: false,
-    estimatedCostMicros: 0,
-  );
+  }) {
+    final isBatch = target.kind == ExecutionTargetKind.githubActions;
+    final isInteractiveRemote =
+        (target.kind == ExecutionTargetKind.codespaces ||
+            target.kind == ExecutionTargetKind.sshWorker) &&
+        target.capabilities.contains(ExecutionCapability.terminal);
+    final nativeOperations =
+        target.capabilities.contains(ExecutionCapability.safeNative)
+        ? const <SafeNativeOperation>{
+            SafeNativeOperation.hashFile,
+            SafeNativeOperation.parseJson,
+            SafeNativeOperation.redactDiagnostics,
+            SafeNativeOperation.summarizeDiff,
+          }
+        : const <SafeNativeOperation>{};
+    final sensitive = target.capabilities.any(
+      <ExecutionCapability>{
+        ExecutionCapability.writeRepository,
+        ExecutionCapability.network,
+        ExecutionCapability.secrets,
+      }.contains,
+    );
+    return ExecutionTargetPolicy(
+      acceptsArbitraryCommands: isInteractiveRemote,
+      supportsBatchDispatch: isBatch,
+      nativeOperations: nativeOperations,
+      shells: isInteractiveRemote
+          ? Set<TerminalShell>.unmodifiable(advertisedShells)
+          : const <TerminalShell>{},
+      requiresExplicitConfirmation:
+          target.approvalMode == ApprovalMode.alwaysAsk ||
+          (target.approvalMode == ApprovalMode.policy &&
+              (sensitive || estimatedCostMicros > 0)),
+      estimatedCostMicros: estimatedCostMicros,
+    );
+  }
 
   final bool acceptsArbitraryCommands;
   final bool supportsBatchDispatch;
@@ -74,15 +102,28 @@ final class ExecutionController extends ChangeNotifier {
   }
 
   Future<void> reconnect() async {
-    await socket.connect(executionId: _state.executionId!, afterSequence: 0);
+    final executionId = _state.executionId;
+    if (executionId == null) throw StateError('No execution to reconnect');
+    await socket.connect(
+      executionId: executionId,
+      afterSequence: _state.lastAcknowledgedSequence,
+    );
   }
 
   void ingest(ExecutionFrame frame) {
+    if (frame.sequence <= _state.lastReceivedSequence) return;
+    final lines = <String>[..._state.lines, frame.text];
+    final firstRetained = lines.length > maximumLines
+        ? lines.length - maximumLines
+        : 0;
     _state = ExecutionState(
       executionId: _state.executionId,
-      lines: <String>[..._state.lines, frame.text],
+      lines: List<String>.unmodifiable(lines.skip(firstRetained)),
       lastReceivedSequence: frame.sequence,
       lastAcknowledgedSequence: _state.lastAcknowledgedSequence,
+      isTerminal:
+          frame.kind == ExecutionFrameKind.completed ||
+          frame.kind == ExecutionFrameKind.cancelled,
     );
     notifyListeners();
   }
@@ -92,7 +133,13 @@ final class ExecutionController extends ChangeNotifier {
       executionId: _state.executionId,
       lines: _state.lines,
       lastReceivedSequence: _state.lastReceivedSequence,
-      lastAcknowledgedSequence: sequence,
+      lastAcknowledgedSequence: sequence
+          .clamp(
+            _state.lastAcknowledgedSequence,
+            _state.lastReceivedSequence,
+          )
+          .toInt(),
+      isTerminal: _state.isTerminal,
     );
     notifyListeners();
   }

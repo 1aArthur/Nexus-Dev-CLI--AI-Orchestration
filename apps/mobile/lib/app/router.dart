@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../design/components/nexus_scaffold.dart';
 import '../features/agents/presentation/agent_matrix_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/execution/presentation/terminal_screen.dart';
 import '../features/missions/presentation/mission_composer_screen.dart';
 
 GoRouter createNexusRouter() {
@@ -41,7 +42,14 @@ GoRouter createNexusRouter() {
             ],
           ),
           _placeholderBranch('/voice', 'Voice', Icons.mic_none_outlined),
-          _placeholderBranch('/terminal', 'Terminal', Icons.terminal_outlined),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/terminal',
+                builder: (context, state) => const TerminalScreen(),
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
