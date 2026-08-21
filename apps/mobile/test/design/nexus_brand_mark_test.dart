@@ -18,8 +18,7 @@ void main() {
         (widget) =>
             widget is Image &&
             widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName ==
-                NexusBrandMark.assetName,
+            (widget.image as AssetImage).assetName == NexusBrandMark.assetName,
       ),
       findsOneWidget,
     );
