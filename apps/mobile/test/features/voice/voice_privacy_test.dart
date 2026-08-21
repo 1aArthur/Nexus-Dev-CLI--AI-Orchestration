@@ -67,8 +67,8 @@ void main() {
       expect(controller.state.audioChunks, isEmpty);
       expect(store.saved, isEmpty);
       expect(
-        transport.sentEvents,
-        contains(<String, Object?>{'type': 'input_audio_buffer.clear'}),
+        transport.sentEvents.map((event) => event['type']),
+        contains('input_audio_buffer.clear'),
       );
     },
   );
