@@ -156,3 +156,59 @@ jobs:
         run: |
           printf '### iOS release package\n\n[Download unsigned app package and checksums](%s)\n' \
             "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  publish-branch-prerelease:
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release:')
+    needs: android-ephemeral-signing
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download verified Android packages from this run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "$GITHUB_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "nexus-android-release-$GITHUB_SHA" \
+            --dir dist/android
+
+      - name: Recheck checksums before publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find dist/android -maxdepth 1 -name '*.apk' -type f | wc -l)" -eq 1
+          test "$(find dist/android -maxdepth 1 -name '*.aab' -type f | wc -l)" -eq 1
+          (cd dist/android && sha256sum -c SHA256SUMS-android.txt)
+
+      - name: Publish repository-visible Task 9 prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          short_sha="${GITHUB_SHA:0:12}"
+          tag="task9-$short_sha"
+          notes="$RUNNER_TEMP/task9-release-notes.md"
+          {
+            printf 'Task 9 provider controls, reasoning profiles, Credits center, and security gates.\n\n'
+            printf 'Android APK and AAB are signed with a disposable CI identity for verification/testing.\n'
+            printf 'They are not signed with the protected Play Store production upload key.\n\n'
+            printf 'Commit: `%s`\n' "$GITHUB_SHA"
+          } > "$notes"
+          gh release create "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Nexus Task 9 · $short_sha" \
+            --notes-file "$notes" \
+            --prerelease
+          gh release upload "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            dist/android/*.apk \
+            dist/android/*.aab \
+            dist/android/SHA256SUMS-android.txt \
+            dist/android/BUILD-INFO.txt

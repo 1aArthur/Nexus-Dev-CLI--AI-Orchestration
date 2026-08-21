@@ -4,7 +4,7 @@ set -euo pipefail
 require_text() {
   local expected=$1
   local file=$2
-  grep -Fq "$expected" "$file" || {
+  grep -Fq -- "$expected" "$file" || {
     printf 'missing required release contract in %s: %s\n' "$file" "$expected" >&2
     return 1
   }
@@ -46,6 +46,13 @@ require_text "flutter build apk --release" "$smoke"
 require_text "apksigner verify --verbose --print-certs" "$smoke"
 require_text "SHA256SUMS-android.txt" "$smoke"
 require_text "SHA256SUMS-ios.txt" "$smoke"
+require_text "publish-branch-prerelease:" "$smoke"
+require_text "startsWith(github.event.head_commit.message, 'release:')" "$smoke"
+require_text "contents: write" "$smoke"
+require_text "gh run download" "$smoke"
+require_text "gh release create" "$smoke"
+require_text "--prerelease" "$smoke"
+require_text "gh release upload" "$smoke"
 test "$(grep -Fc "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" "$smoke")" -eq 2
 test "$(grep -Fc "if-no-files-found: error" "$smoke")" -eq 2
 test "$(grep -Fc "retention-days: 30" "$smoke")" -eq 2
