@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../design/components/nexus_scaffold.dart';
 import '../features/agents/presentation/agent_matrix_screen.dart';
+import '../features/browser/presentation/engine_lab_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/execution/presentation/terminal_screen.dart';
 import '../features/extensions/domain/package_descriptor.dart';
@@ -99,6 +100,7 @@ Widget _screenForDestination(NexusDestination destination) {
     'themes' => const ThemeEditorScreen(),
     'credits' => CreditsScreen(),
     'settings' => const SettingsScreen(),
+    'engine-lab' => const EngineLabScreen(),
     _ => FeaturePlaceholderScreen(
       title: destination.label,
       icon: destination.icon,

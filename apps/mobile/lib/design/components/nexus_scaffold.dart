@@ -70,6 +70,12 @@ const extendedDestinations = <NexusDestination>[
     icon: Icons.extension_outlined,
   ),
   NexusDestination(
+    label: 'Engine Lab',
+    path: 'engine-lab',
+    icon: Icons.web_asset_outlined,
+    description: 'Production and experimental engine capabilities.',
+  ),
+  NexusDestination(
     label: 'Knowledge',
     path: 'knowledge',
     icon: Icons.menu_book_outlined,
