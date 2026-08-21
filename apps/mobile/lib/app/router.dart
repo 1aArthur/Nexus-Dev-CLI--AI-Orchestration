@@ -11,7 +11,9 @@ import '../features/instructions/presentation/instructions_screen.dart';
 import '../features/knowledge/presentation/knowledge_screen.dart';
 import '../features/missions/presentation/mission_composer_screen.dart';
 import '../features/pets/presentation/pets_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/themes/presentation/theme_editor_screen.dart';
+import '../features/usage/presentation/credits_screen.dart';
 import '../features/voice/presentation/voice_screen.dart';
 
 GoRouter createNexusRouter() {
@@ -95,6 +97,8 @@ Widget _screenForDestination(NexusDestination destination) {
     'instructions' => const InstructionsScreen(),
     'pets' => const PetsScreen(),
     'themes' => const ThemeEditorScreen(),
+    'credits' => CreditsScreen(),
+    'settings' => const SettingsScreen(),
     _ => FeaturePlaceholderScreen(
       title: destination.label,
       icon: destination.icon,
