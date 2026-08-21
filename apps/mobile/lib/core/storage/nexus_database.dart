@@ -165,6 +165,6 @@ final class NexusDatabase {
   }
 
   Future<void> close() async {
-    _database.dispose();
+    _database.close();
   }
 }
