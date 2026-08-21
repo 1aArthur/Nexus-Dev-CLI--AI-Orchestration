@@ -8,8 +8,14 @@ fn validates_bounded_pcm_and_waveform() {
     let pcm = [0_u8, 0, 255, 127, 0, 128, 0, 0];
     assert!(validate_pcm_s16le(&pcm, 24_000).is_ok());
     assert_eq!(downsample_waveform(&pcm, 2).unwrap().len(), 2);
-    assert_eq!(validate_pcm_s16le(&[0], 24_000), Err(CoreError::MalformedPcm));
-    assert_eq!(validate_pcm_s16le(&pcm, 1), Err(CoreError::UnsupportedSampleRate));
+    assert_eq!(
+        validate_pcm_s16le(&[0], 24_000),
+        Err(CoreError::MalformedPcm)
+    );
+    assert_eq!(
+        validate_pcm_s16le(&pcm, 1),
+        Err(CoreError::UnsupportedSampleRate)
+    );
 }
 
 #[test]

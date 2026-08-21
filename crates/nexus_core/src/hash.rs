@@ -9,6 +9,7 @@ const INITIAL: [u32; 8] = [
     0x5be0_cd19,
 ];
 
+#[rustfmt::skip]
 const ROUND: [u32; 64] = [
     0x428a_2f98, 0x7137_4491, 0xb5c0_fbcf, 0xe9b5_dba5, 0x3956_c25b, 0x59f1_11f1,
     0x923f_82a4, 0xab1c_5ed5, 0xd807_aa98, 0x1283_5b01, 0x2431_85be, 0x550c_7dc3,

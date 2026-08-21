@@ -45,9 +45,7 @@ pub fn parse_safe_document(
                 }
             }
             '}' | ']' => {
-                depth = depth
-                    .checked_sub(1)
-                    .ok_or(CoreError::MalformedDocument)?;
+                depth = depth.checked_sub(1).ok_or(CoreError::MalformedDocument)?;
             }
             _ => {}
         }
